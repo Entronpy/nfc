@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>碰一碰 · NFC 卡片内容定制</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: #eef1f5; color: #222; line-height: 1.6;
+  }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; }
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 24px 16px 60px; }
+  .page-head { text-align: center; margin: 14px 0 22px; }
+  .page-head h1 { font-size: 24px; letter-spacing: 1px; }
+  .page-head p { color: #667; font-size: 14px; margin-top: 6px; }
+  .hint { color: #889; font-size: 12.5px; }
+
+  .maker-grid { display: grid; grid-template-columns: 1fr 360px; gap: 20px; align-items: start; }
+  @media (max-width: 900px) { .maker-grid { grid-template-columns: 1fr; } }
+  .panel { background: #fff; border-radius: 14px; padding: 18px 18px 20px; box-shadow: 0 1px 4px rgba(20,30,50,.06); margin-bottom: 16px; }
+  .panel h2 { font-size: 15px; color: #334; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .panel h2 .no { width: 22px; height: 22px; border-radius: 50%; background: #2563eb; color: #fff; font-size: 12.5px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+
+  /* 模板选择网格 */
+  .tpl-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  @media (max-width: 520px) { .tpl-grid { grid-template-columns: repeat(2, 1fr); } }
+  .tpl-opt { border: 2px solid transparent; border-radius: 12px; background: #f4f6f9; padding: 12px 6px 10px; text-align: center; cursor: pointer; transition: border .15s; }
+  .tpl-opt:hover { background: #eef2f8; }
+  .tpl-opt.on { border-color: #2563eb; background: #eef4ff; }
+  .tpl-opt .ti { font-size: 26px; line-height: 1.15; }
+  .tpl-opt .tn { font-size: 13.5px; font-weight: 600; margin-top: 3px; }
+  .tpl-opt .td { font-size: 11.5px; color: #8892a0; margin-top: 1px; }
+
+  .field { margin-bottom: 12px; }
+  .field label { display: block; font-size: 13px; color: #556; margin-bottom: 4px; }
+  .field input, .field textarea { width: 100%; border: 1px solid #d5dbe3; border-radius: 9px; padding: 9px 11px; font-size: 14.5px; outline: none; transition: border .15s; font-family: inherit; }
+  .field input:focus, .field textarea:focus { border-color: #2563eb; }
+  .field textarea { resize: vertical; }
+  .field .counter { float: right; color: #9aa5b1; font-size: 12px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
+  @media (max-width: 520px) { .grid2 { grid-template-columns: 1fr; } }
+  .link-row { display: grid; grid-template-columns: 96px 1fr; gap: 8px; margin-bottom: 8px; }
+  .link-row input { border: 1px solid #d5dbe3; border-radius: 9px; padding: 8px 10px; font-size: 14px; outline: none; }
+  .link-row input:focus { border-color: #2563eb; }
+
+  .themes { display: flex; gap: 10px; flex-wrap: wrap; }
+  .theme-opt { flex: 1; min-width: 86px; border: 2px solid transparent; border-radius: 12px; padding: 8px 6px; text-align: center; font-size: 12.5px; cursor: pointer; background: #f4f6f9; transition: border .15s; }
+  .theme-opt .swatch { height: 34px; border-radius: 8px; margin-bottom: 6px; border: 1px solid rgba(0,0,0,.08); }
+  .theme-opt.on { border-color: #2563eb; }
+
+  .go-btn { width: 100%; border: none; border-radius: 12px; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff; font-size: 16.5px; padding: 13px; letter-spacing: 2px; box-shadow: 0 3px 10px rgba(37,99,235,.3); }
+  .go-btn:active { transform: translateY(1px); }
+  .result { display: none; margin-top: 14px; }
+  .result .url-box { display: flex; gap: 8px; }
+  .result .url-box input { flex: 1; border: 1px solid #cfd8e3; border-radius: 9px; padding: 9px 10px; font-size: 13px; background: #f8fafc; color: #345; }
+  .copy-btn { border: none; border-radius: 9px; background: #2563eb; color: #fff; padding: 0 16px; font-size: 14px; flex: none; }
+  .meter { height: 8px; border-radius: 4px; background: #e5eaf0; margin: 10px 0 4px; overflow: hidden; }
+  .meter .fill { height: 100%; width: 0%; background: #22c55e; border-radius: 4px; transition: width .2s; }
+  .meter-text { font-size: 12.5px; color: #778; }
+  .qr-area { text-align: center; margin-top: 10px; }
+  .qr-area svg { background: #fff; padding: 8px; border-radius: 10px; border: 1px solid #e3e8ef; }
+  .qr-area p { font-size: 12.5px; color: #778; margin-top: 6px; }
+
+  .phone { width: 100%; max-width: 330px; margin: 0 auto; background: #fff; border-radius: 26px; padding: 12px; box-shadow: 0 8px 30px rgba(20,30,60,.16); border: 6px solid #222c3a; }
+  .phone .screen { border-radius: 16px; overflow: hidden; min-height: 480px; background: #f2f4f8; display: flex; align-items: stretch; }
+  .preview-note { text-align: center; font-size: 12.5px; color: #889; margin-top: 10px; }
+  .sticky { position: sticky; top: 16px; }
+
+  /* ---------- 卡片主题（CSS 变量驱动，预览与展示共用） ---------- */
+  .nfc-card { --row-bg: rgba(0,0,0,.035); --row-bd: rgba(20,40,80,.12); --ac-fg: #fff;
+    width: 100%; padding: 28px 20px 20px; display: flex; flex-direction: column; align-items: center; text-align: center;
+    font-family: inherit; background: var(--bg); color: var(--fg); }
+  .nfc-card .avatar { width: 74px; height: 74px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: 600; margin-bottom: 12px; background: var(--av-bg); color: var(--av-fg); }
+  .nfc-card .name { font-size: 22px; font-weight: 700; letter-spacing: 1px; }
+  .nfc-card .tag { font-size: 13px; margin-top: 3px; opacity: .85; }
+  .nfc-card .bio { font-size: 13.5px; margin-top: 10px; opacity: .92; max-width: 268px; white-space: pre-wrap; }
+  .nfc-card .quote { font-size: 14.5px; margin: 14px 0 2px; max-width: 270px; white-space: pre-wrap; line-height: 1.9; }
+  .nfc-card .sig { font-size: 13px; margin-top: 10px; opacity: .8; }
+  .nfc-card .price-line { font-size: 30px; font-weight: 800; margin-top: 8px; letter-spacing: 1px; }
+  .nfc-card .price-line .cur { font-size: 16px; font-weight: 600; margin-right: 2px; }
+  .nfc-card .badge { display: inline-block; font-size: 12px; border-radius: 999px; padding: 2px 12px; margin-top: 6px; background: var(--row-bg); border: 1px solid var(--row-bd); }
+  .nfc-card .sep { width: 44px; height: 3px; border-radius: 2px; margin: 16px 0 6px; background: var(--row-bd); }
+  .nfc-card .rows { width: 100%; max-width: 270px; margin-top: 6px; }
+  .nfc-card .row { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 10px; margin-top: 8px; font-size: 14px; cursor: pointer; background: var(--row-bg); border: 1px solid var(--row-bd); }
+  .nfc-card .row .ico { flex: none; width: 20px; text-align: center; }
+  .nfc-card .row .val { flex: 1; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .nfc-card .row .act { flex: none; font-size: 12px; border-radius: 6px; padding: 2px 8px; color: var(--ac); background: rgba(127,127,127,.001); }
+  .nfc-card .links { width: 100%; max-width: 270px; margin-top: 8px; }
+  .nfc-card .link-btn { display: block; margin-top: 8px; padding: 10px 12px; border-radius: 10px; font-size: 14px; font-weight: 600; background: var(--ac); color: var(--ac-fg); }
+  .nfc-card .brand { margin-top: auto; padding-top: 20px; font-size: 11px; opacity: .55; width: 100%; }
+  .nfc-card .brand a { text-decoration: underline; }
+  .nfc-card .heart { font-size: 40px; margin: 4px 0 8px; animation: beat 1.4s ease-in-out infinite; }
+  @keyframes beat { 0%,100% { transform: scale(1); } 12% { transform: scale(1.16); } 24% { transform: scale(1); } 36% { transform: scale(1.1); } }
+
+  .t-white  { --bg:#f6f8fb; --fg:#24303f; --ac:#2563eb; --av-bg:#e3ecff; --av-fg:#2563eb; --row-bd:rgba(30,60,120,.14); }
+  .t-night  { --bg:linear-gradient(160deg,#12161d,#1c2530); --fg:#e8edf4; --ac:#8fc0ff; --ac-fg:#0d2137; --av-bg:#233042; --av-fg:#8fc0ff; --row-bg:rgba(255,255,255,.06); --row-bd:rgba(255,255,255,.16); }
+  .t-blue   { --bg:linear-gradient(160deg,#0b3a75,#0a2a52 70%); --fg:#eaf2fc; --ac:#ffffff; --ac-fg:#0b3a75; --av-bg:rgba(255,255,255,.14); --av-fg:#fff; --row-bg:rgba(255,255,255,.10); --row-bd:rgba(255,255,255,.2); }
+  .t-pink   { --bg:linear-gradient(160deg,#ffe9ef,#ffd9e4); --fg:#7a2b47; --ac:#e0508a; --av-bg:#ffd3e2; --av-fg:#c2336e; --row-bg:rgba(255,255,255,.5); --row-bd:rgba(194,51,110,.22); }
+  .t-star   { --bg:linear-gradient(160deg,#1a1440,#0d0a24); --fg:#ece8ff; --ac:#c4b5fd; --ac-fg:#241b4d; --av-bg:#2c2352; --av-fg:#c4b5fd; --row-bg:rgba(255,255,255,.07); --row-bd:rgba(196,181,253,.25); }
+  .t-cream  { --bg:#fbf5ea; --fg:#5b4a36; --ac:#b9863e; --av-bg:#f3e6cd; --av-fg:#96702c; --row-bg:rgba(255,255,255,.6); --row-bd:rgba(150,112,44,.25); }
+  .t-ink    { --bg:linear-gradient(160deg,#f7f2e7,#ece2cc); --fg:#3a3226; --ac:#8a6f3c; --av-bg:#e6d9ba; --av-fg:#6d5626; --row-bg:rgba(255,255,255,.55); --row-bd:rgba(109,86,38,.28); }
+  .t-green  { --bg:linear-gradient(160deg,#0f3d2e,#0a2c21); --fg:#e4f2ea; --ac:#7fd6a4; --ac-fg:#0a2c21; --av-bg:#1c5442; --av-fg:#a8e6c4; --row-bg:rgba(255,255,255,.07); --row-bd:rgba(127,214,164,.28); }
+  .t-orange { --bg:linear-gradient(160deg,#fff3e8,#ffe4cd); --fg:#6b3a12; --ac:#e96f22; --av-bg:#ffd9b8; --av-fg:#c65a14; --row-bg:rgba(255,255,255,.55); --row-bd:rgba(198,90,20,.24); }
+  .t-lemon  { --bg:#fdfbe4; --fg:#5c5413; --ac:#a89b16; --av-bg:#f3ecae; --av-fg:#7d721b; --row-bg:rgba(255,255,255,.6); --row-bd:rgba(125,114,27,.28); }
+  .t-purple { --bg:linear-gradient(160deg,#241b3d,#150f2a); --fg:#ece7fb; --ac:#a78bfa; --ac-fg:#1e1440; --av-bg:#372a5c; --av-fg:#c4b5fd; --row-bg:rgba(255,255,255,.07); --row-bd:rgba(167,139,250,.3); }
+
+  .display-stage { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px 14px; }
+  .display-card-wrap { width: 100%; max-width: 380px; border-radius: 22px; overflow: hidden; box-shadow: 0 12px 46px rgba(15,25,50,.22); }
+  .err-box { background: #fff; border-radius: 14px; padding: 30px 22px; text-align: center; max-width: 380px; }
+  .err-box h2 { font-size: 17px; margin-bottom: 8px; }
+
+  .toast { position: fixed; left: 50%; bottom: 40px; transform: translateX(-50%) translateY(20px); background: rgba(20,28,40,.92); color: #fff; font-size: 14px; border-radius: 10px; padding: 10px 18px; opacity: 0; pointer-events: none; transition: all .25s; z-index: 99; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="toast" id="toast"></div>
+<script src="qrcode.min.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  /* ================= 基础工具 ================= */
+  function b64urlEncode(str) {
+    var bytes = new TextEncoder().encode(str), bin = '';
+    for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+  function b64urlDecode(s) {
+    s = s.replace(/-/g, '+').replace(/_/g, '/');
+    while (s.length % 4) s += '=';
+    var bin = atob(s), bytes = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return new TextDecoder().decode(bytes);
+  }
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+  function toast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(function () { t.classList.remove('show'); }, 1800);
+  }
+  function copyText(text, okMsg) {
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); toast(okMsg); } catch (e) { toast('复制失败，请长按手动复制'); }
+      document.body.removeChild(ta);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { toast(okMsg); }, fallback);
+    } else fallback();
+  }
+  function cleanUrl(u) {
+    u = (u || '').trim();
+    if (!u) return '';
+    if (!/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(u)) u = 'https://' + u;
+    return u;
+  }
+  function baseHref() { return location.href.split('#')[0]; }
+
+  /* NFC 容量：CUID-1K NDEF 映射后约 716 字节，留余量取 690 为红线 */
+  var NFC_LIMIT = 690, NFC_WARN = 620;
+
+  /* ================= 模板注册表 ================= */
+  function TH(id, name, css) { return { id: id, name: name, css: css }; }
+
+  var TPL = {
+    card: {
+      nm: '电子名片', ic: '💼', de: '社交 · 求职 · 递名片',
+      th: [TH('t-white', '清爽白', 'linear-gradient(135deg,#f6f8fb,#e3ecff)'),
+           TH('t-night', '静谧夜', 'linear-gradient(135deg,#12161d,#1c2530)'),
+           TH('t-blue', '海之蓝', 'linear-gradient(135deg,#0b3a75,#0a2a52)')],
+      fd: [
+        { id: 'n', lb: '名字（必填）', req: 1, max: 24, ph: '显示在卡片上的名字' },
+        { id: 't', lb: '身份标签（选填）', max: 30, ph: '如：海大机械 28 级 / 摄影爱好者' },
+        { id: 's', lb: '一句话介绍（选填）', type: 'area', max: 90, ph: '让别人碰卡后 3 秒记住你' },
+        { id: 'p', lb: '手机号', type: 'tel', max: 20, ph: '碰卡可直接拨打', half: 1 },
+        { id: 'w', lb: '微信号', max: 30, ph: '展示 + 一键复制', half: 1 },
+        { id: 'q', lb: 'QQ', max: 20, half: 1 },
+        { id: 'e', lb: '邮箱', type: 'email', max: 40, half: 1 },
+        { type: 'rows', id: 'L', lb: '自定义链接（最多 3 个，选填）', nph: '名称，如 B站', vph: '网址，如 space.bilibili.com/xxx', url: 1, max: 3, tip: '网址不用自己加 https://，页面会自动补全。' }
+      ]
+    },
+    love: {
+      nm: '表白心意', ic: '💌', de: '把话写进卡里',
+      th: [TH('t-pink', '心动粉', 'linear-gradient(135deg,#ffe9ef,#ffd9e4)'),
+           TH('t-star', '星空夜', 'linear-gradient(135deg,#1a1440,#0d0a24)'),
+           TH('t-cream', '奶油信纸', 'linear-gradient(135deg,#fbf5ea,#f0e2c8)')],
+      fd: [
+        { id: 'to', lb: '致（TA 的名字/昵称）', req: 1, max: 20, ph: '如：小雨', half: 1 },
+        { id: 'fm', lb: '署名（留空=匿名）', max: 20, ph: '如：一个欣赏你的人', half: 1 },
+        { id: 'msg', lb: '想说的话', type: 'area', req: 1, max: 260, ph: '碰卡的人都会看到这段话，写点真心话' },
+        { id: 'song', lb: '一首歌的链接（选填）', max: 120, ph: '如 网易云分享链接，碰卡可以点开听' }
+      ]
+    },
+    grad: {
+      nm: '毕业纪念', ic: '🎓', de: '留给母校和同学',
+      th: [TH('t-ink', '学院纸', 'linear-gradient(135deg,#f7f2e7,#ece2cc)'),
+           TH('t-night', '静谧夜', 'linear-gradient(135deg,#12161d,#1c2530)'),
+           TH('t-green', '墨绿', 'linear-gradient(135deg,#0f3d2e,#0a2c21)')],
+      fd: [
+        { id: 'sc', lb: '学校 / 学院', req: 1, max: 30, ph: '如：广东海洋大学 滨海农业学院', half: 1 },
+        { id: 'yr', lb: '届别', max: 10, ph: '如：2027 届', half: 1 },
+        { id: 'msg', lb: '毕业留言', type: 'area', req: 1, max: 200, ph: '写给多年后的自己，或写给同窗' },
+        { id: 'fm', lb: '署名', max: 20, ph: '如：2023级 张同学', half: 1 }
+      ]
+    },
+    club: {
+      nm: '社团招新', ic: '🚩', de: '摆摊 · 拉新 · 传单',
+      th: [TH('t-orange', '活力橙', 'linear-gradient(135deg,#fff3e8,#ffe4cd)'),
+           TH('t-purple', '电竞紫', 'linear-gradient(135deg,#241b3d,#150f2a)'),
+           TH('t-white', '清爽白', 'linear-gradient(135deg,#f6f8fb,#e3ecff)')],
+      fd: [
+        { id: 'n', lb: '社团名（必填）', req: 1, max: 24, ph: '如：海大机器人协会' },
+        { id: 'sl', lb: '一句话口号', max: 30, ph: '如：把想法焊进现实', half: 1 },
+        { id: 'qqg', lb: 'QQ 群号', max: 20, ph: '碰卡一键复制进群', half: 1 },
+        { id: 'it', lb: '社团介绍', type: 'area', max: 160, ph: '做什么、缺什么人、活动频率' },
+        { id: 'u', lb: '报名表 / 主页链接（选填）', max: 120, ph: '如问卷或公众号链接' }
+      ]
+    },
+    flea: {
+      nm: '二手出物', ic: '🏷️', de: '毕业甩卖 · 好物转手',
+      th: [TH('t-lemon', '柠檬黄', 'linear-gradient(135deg,#fdfbe4,#f5eda8)'),
+           TH('t-white', '清爽白', 'linear-gradient(135deg,#f6f8fb,#e3ecff)'),
+           TH('t-night', '静谧夜', 'linear-gradient(135deg,#12161d,#1c2530)')],
+      fd: [
+        { id: 'it', lb: '物品名（必填）', req: 1, max: 24, ph: '如：Kindle Paperwhite 5' },
+        { id: 'pr', lb: '价格（元）', req: 1, max: 10, ph: '如：299 或 299 可刀', half: 1 },
+        { id: 'cd', lb: '成色 / 说明', type: 'area', max: 140, ph: '用了多久、有什么配件、为什么出' },
+        { id: 'wx', lb: '微信号', max: 30, ph: '买家一键复制', half: 1 },
+        { id: 'q', lb: 'QQ', max: 20, half: 1 },
+        { id: 'nt', lb: '交易方式（选填）', max: 40, ph: '如：校内自提 / 驿站寄件' }
+      ]
+    },
+    game: {
+      nm: '游戏开黑', ic: '🎮', de: '室友 · 网友 · 找搭子',
+      th: [TH('t-purple', '电竞紫', 'linear-gradient(135deg,#241b3d,#150f2a)'),
+           TH('t-star', '星空夜', 'linear-gradient(135deg,#1a1440,#0d0a24)'),
+           TH('t-night', '静谧夜', 'linear-gradient(135deg,#12161d,#1c2530)')],
+      fd: [
+        { id: 'nk', lb: '游戏昵称（必填）', req: 1, max: 20, ph: '如：深夜修狗' },
+        { id: 'rk', lb: '段位 / 称号（选填）', max: 20, ph: '如：王者50星 / 大师', half: 1 },
+        { id: 'nt', lb: '在线时间（选填）', max: 40, ph: '如：工作日晚8点后', half: 1 },
+        { type: 'rows', id: 'G', lb: '游戏和 ID（最多 3 个）', nph: '游戏，如 原神', vph: '游戏 UID', url: 0, max: 3, req: 1 }
+      ]
+    }
+  };
+  var TPL_ORDER = ['card', 'love', 'grad', 'club', 'flea', 'game'];
+
+  /* ================= 名片渲染（预览/展示共用） ================= */
+  function cardShell(themeCls) {
+    var c = el('div', 'nfc-card ' + themeCls);
+    var brand = el('div', 'brand');
+    brand.appendChild(document.createTextNode('内容由卡片主人自定义 · 碰一碰 NFC '));
+    var mk = el('a', null, '我也要做一张');
+    mk.href = baseHref();
+    brand.appendChild(mk);
+    c._brand = brand;
+    return c;
+  }
+  function finish(c) { c.appendChild(c._brand); return c; }
+  function addRow(c, ico, val, mode, payload) {
+    var rows = c.querySelector('.rows') || c.appendChild(el('div', 'rows'));
+    var r = el('div', 'row');
+    r.appendChild(el('span', 'ico', ico));
+    r.appendChild(el('span', 'val', val));
+    var act = el('span', 'act', mode === 'tel' ? '拨打' : mode === 'mailto' ? '邮件' : '复制');
+    r.appendChild(act);
+    if (mode === 'tel') { r.onclick = function () { location.href = 'tel:' + payload; }; }
+    else if (mode === 'mailto') { r.onclick = function () { location.href = 'mailto:' + payload; }; }
+    else r.onclick = function () { copyText(payload, '已复制：' + payload); };
+    rows.appendChild(r);
+  }
+  function addLink(c, label, href) {
+    var links = c.querySelector('.links') || c.appendChild(el('div', 'links'));
+    var a = el('a', 'link-btn', label);
+    a.href = href; a.target = '_blank'; a.rel = 'noopener';
+    links.appendChild(a);
+  }
+  function head(c, avatar, name, tag) {
+    c.appendChild(el('div', 'avatar', avatar));
+    c.appendChild(el('div', 'name', name));
+    if (tag) c.appendChild(el('div', 'tag', tag));
+  }
+
+  var RENDER = {
+    card: function (d) {
+      var cls = (TPL.card.th[d.c] || TPL.card.th[0]).id;
+      var c = cardShell(cls);
+      head(c, (d.n || '?').trim().charAt(0).toUpperCase(), d.n || '未命名', d.t);
+      if (d.s) c.appendChild(el('div', 'bio', d.s));
+      c.appendChild(el('div', 'sep'));
+      if (d.p) addRow(c, '📱', d.p, 'tel', d.p);
+      if (d.w) addRow(c, '💬', '微信：' + d.w, 'copy', d.w);
+      if (d.q) addRow(c, '🐧', 'QQ：' + d.q, 'copy', d.q);
+      if (d.e) addRow(c, '✉️', d.e, 'mailto', d.e);
+      if (d.L) d.L.forEach(function (it) { if (it && it[0] && it[1]) addLink(c, it[0], it[1]); });
+      return finish(c);
+    },
+    love: function (d) {
+      var cls = (TPL.love.th[d.c] || TPL.love.th[0]).id;
+      var c = cardShell(cls);
+      c.appendChild(el('div', 'heart', '❤️'));
+      c.appendChild(el('div', 'name', '致 ' + (d.to || '你')));
+      if (d.msg) c.appendChild(el('div', 'quote', d.msg));
+      c.appendChild(el('div', 'sig', '—— ' + (d.fm || '匿名')));
+      if (d.song) { try { addLink(c, '🎵 听这首歌', cleanUrl(d.song)); } catch (e) {} }
+      return finish(c);
+    },
+    grad: function (d) {
+      var cls = (TPL.grad.th[d.c] || TPL.grad.th[0]).id;
+      var c = cardShell(cls);
+      head(c, '🎓', d.sc || '毕业纪念', null);
+      if (d.yr) c.appendChild(el('div', 'badge', d.yr));
+      if (d.msg) c.appendChild(el('div', 'quote', d.msg));
+      if (d.fm) c.appendChild(el('div', 'sig', '—— ' + d.fm));
+      return finish(c);
+    },
+    club: function (d) {
+      var cls = (TPL.club.th[d.c] || TPL.club.th[0]).id;
+      var c = cardShell(cls);
+      head(c, (d.n || '社').charAt(0), d.n || '社团', d.sl);
+      if (d.it) c.appendChild(el('div', 'bio', d.it));
+      c.appendChild(el('div', 'sep'));
+      if (d.qqg) addRow(c, '👥', 'QQ 群：' + d.qqg, 'copy', d.qqg);
+      if (d.u) { try { addLink(c, '📝 报名入口', cleanUrl(d.u)); } catch (e) {} }
+      return finish(c);
+    },
+    flea: function (d) {
+      var cls = (TPL.flea.th[d.c] || TPL.flea.th[0]).id;
+      var c = cardShell(cls);
+      head(c, '🏷️', d.it || '出个宝贝', null);
+      if (d.pr) {
+        var pl = el('div', 'price-line');
+        pl.appendChild(el('span', 'cur', '¥'));
+        pl.appendChild(document.createTextNode(d.pr));
+        c.appendChild(pl);
+      }
+      if (d.cd) c.appendChild(el('div', 'bio', d.cd));
+      if (d.nt) c.appendChild(el('div', 'badge', '📦 ' + d.nt));
+      c.appendChild(el('div', 'sep'));
+      if (d.wx) addRow(c, '💬', '微信：' + d.wx, 'copy', d.wx);
+      if (d.q) addRow(c, '🐧', 'QQ：' + d.q, 'copy', d.q);
+      return finish(c);
+    },
+    game: function (d) {
+      var cls = (TPL.game.th[d.c] || TPL.game.th[0]).id;
+      var c = cardShell(cls);
+      head(c, '🎮', d.nk || '玩家', d.rk);
+      if (d.nt) c.appendChild(el('div', 'badge', '🕒 ' + d.nt));
+      c.appendChild(el('div', 'sep'));
+      if (d.G) d.G.forEach(function (it) {
+        if (it && it[0] && it[1]) addRow(c, '🕹️', it[0] + '：' + it[1], 'copy', it[1]);
+      });
+      return finish(c);
+    }
+  };
+
+  function renderCard(d) {
+    var k = RENDER[d.k] ? d.k : 'card';
+    return RENDER[k](d);
+  }
+  function displayTitle(d) {
+    var k = RENDER[d.k] ? d.k : 'card';
+    var n = { card: d.n, love: '给' + d.to + '的心意', grad: d.sc + ' · 毕业纪念', club: d.n, flea: d.it, game: d.nk }[k];
+    return (n || '碰一碰卡片') + ' · NFC';
+  }
+
+  /* ================= 展示模式 ================= */
+  function runDisplay(data) {
+    var stage = el('div', 'display-stage');
+    var wrap = el('div', 'display-card-wrap');
+    wrap.appendChild(renderCard(data));
+    stage.appendChild(wrap);
+    document.getElementById('app').appendChild(stage);
+    document.title = displayTitle(data);
+  }
+  function runBroken() {
+    var box = el('div', 'display-stage');
+    var err = el('div', 'err-box');
+    err.appendChild(el('h2', null, '😵 内容读不出来'));
+    err.appendChild(el('p', null, '链接可能没复制完整。请联系卡片主人重新获取链接。'));
+    var again = el('a', null, '→ 去做我自己的卡');
+    again.href = baseHref();
+    again.style.cssText = 'display:inline-block;margin-top:14px;color:#2563eb;';
+    err.appendChild(again);
+    box.appendChild(err);
+    document.getElementById('app').appendChild(box);
+  }
+
+  /* ================= 制作模式 ================= */
+  function runMaker() {
+    var app = document.getElementById('app');
+
+    var headEl = el('div', 'page-head');
+    headEl.appendChild(el('h1', null, '碰一碰 · NFC 卡片内容定制'));
+    headEl.appendChild(el('p', null, '选模板 → 填信息 → 生成链接 → 刷进你的卡'));
+    app.appendChild(headEl);
+
+    var grid = el('div', 'maker-grid');
+    var left = el('div');
+    var right = el('div');
+    grid.appendChild(left); grid.appendChild(right);
+    app.appendChild(grid);
+
+    /* ---- 0 选模板 ---- */
+    var p0 = el('div', 'panel');
+    p0.appendChild(secTitle('0', '选个模板'));
+    var tg = el('div', 'tpl-grid');
+    TPL_ORDER.forEach(function (k) {
+      var t = TPL[k];
+      var o = el('div', 'tpl-opt' + (k === 'card' ? ' on' : ''));
+      o.dataset.k = k;
+      o.appendChild(el('div', 'ti', t.ic));
+      o.appendChild(el('div', 'tn', t.nm));
+      o.appendChild(el('div', 'td', t.de));
+      o.onclick = function () {
+        document.querySelectorAll('.tpl-opt').forEach(function (x) { x.classList.remove('on'); });
+        o.classList.add('on');
+        rebuildForm();
+        refreshPreview();
+      };
+      tg.appendChild(o);
+    });
+    p0.appendChild(tg);
+    left.appendChild(p0);
+
+    /* ---- 1 填信息（按模板动态） ---- */
+    var p1 = el('div', 'panel');
+    p1.appendChild(secTitle('1', '填信息'));
+    var formBox = el('div'); formBox.id = 'form-box';
+    p1.appendChild(formBox);
+    left.appendChild(p1);
+
+    /* ---- 2 配色 ---- */
+    var p2 = el('div', 'panel');
+    p2.appendChild(secTitle('2', '选个配色'));
+    var themes = el('div', 'themes');
+    p2.appendChild(themes);
+    left.appendChild(p2);
+
+    /* ---- 3 生成 ---- */
+    var p3 = el('div', 'panel');
+    p3.appendChild(secTitle('3', '生成链接'));
+    var go = el('button', 'go-btn', '生成我的专属链接');
+    p3.appendChild(go);
+    var result = el('div', 'result'); result.id = 'result';
+    var urlBox = el('div', 'url-box');
+    var urlInput = el('input'); urlInput.id = 'gen-url'; urlInput.readOnly = true;
+    var cp = el('button', 'copy-btn', '复制'); cp.id = 'copy-btn';
+    urlBox.appendChild(urlInput); urlBox.appendChild(cp);
+    result.appendChild(urlBox);
+    var meter = el('div', 'meter'); var fill = el('div', 'fill'); fill.id = 'meter-fill'; meter.appendChild(fill);
+    result.appendChild(meter);
+    var mt = el('div', 'meter-text'); mt.id = 'meter-text';
+    result.appendChild(mt);
+    var qa = el('div', 'qr-area'); qa.id = 'qr-area';
+    result.appendChild(qa);
+    p3.appendChild(result);
+    var law = el('p', 'hint', '内容由你自己生成并写入自己的卡片：请遵守法律与校规，勿写他人隐私或敏感信息。');
+    law.style.marginTop = '10px';
+    p3.appendChild(law);
+    var tos = el('p', 'hint');
+    tos.style.marginTop = '4px';
+    tos.appendChild(document.createTextNode('点击生成即表示已阅读并同意 '));
+    var tosA = el('a', null, '《免责声明与用户权益承诺书》');
+    tosA.href = 'terms.html'; tosA.target = '_blank'; tosA.rel = 'noopener';
+    tosA.style.textDecoration = 'underline';
+    tos.appendChild(tosA);
+    p3.appendChild(tos);
+    left.appendChild(p3);
+
+    /* ---- 右：实时预览 ---- */
+    var pv = el('div', 'panel sticky');
+    pv.appendChild(el('h2', null, '实时预览'));
+    var phone = el('div', 'phone');
+    var screen = el('div', 'screen'); screen.id = 'preview-screen';
+    phone.appendChild(screen);
+    pv.appendChild(phone);
+    pv.appendChild(el('p', 'preview-note', '别人碰你的卡时，看到的就是这个画面'));
+    right.appendChild(pv);
+
+    /* ---- 引擎 ---- */
+    function curTpl() {
+      var on = document.querySelector('.tpl-opt.on');
+      return on ? on.dataset.k : 'card';
+    }
+    function curTheme() {
+      var on = document.querySelector('.theme-opt.on');
+      return on ? Number(on.dataset.idx) : 0;
+    }
+    function rebuildForm() {
+      var t = TPL[curTpl()];
+      formBox.innerHTML = '';
+      themes.innerHTML = '';
+      var halves = [];
+      function flushHalves() {
+        if (halves.length) {
+          var g = el('div', 'grid2');
+          halves.forEach(function (f) { g.appendChild(f); });
+          formBox.appendChild(g);
+          halves = [];
+        }
+      }
+      t.fd.forEach(function (f) {
+        if (f.type === 'rows') {
+          flushHalves();
+          var wrapF = el('div', 'field');
+          var lb = el('label'); lb.textContent = f.lb; wrapF.appendChild(lb);
+          for (var i = 0; i < f.max; i++) {
+            var lr = el('div', 'link-row');
+            var ia = el('input'); ia.dataset.rows = f.id + ':n:' + i; ia.placeholder = f.nph;
+            var iu = el('input'); iu.dataset.rows = f.id + ':v:' + i; iu.placeholder = f.vph;
+            lr.appendChild(ia); lr.appendChild(iu);
+            wrapF.appendChild(lr);
+          }
+          if (f.tip) wrapF.appendChild(el('p', 'hint', f.tip));
+          formBox.appendChild(wrapF);
+        } else {
+          var fe = mkField(f);
+          if (f.half) halves.push(fe);
+          else { flushHalves(); formBox.appendChild(fe); }
+        }
+      });
+      flushHalves();
+      t.th.forEach(function (th, i) {
+        var o = el('div', 'theme-opt' + (i === 0 ? ' on' : ''));
+        o.dataset.idx = i;
+        var sw = el('div', 'swatch'); sw.style.background = th.css;
+        o.appendChild(sw); o.appendChild(el('div', null, th.name));
+        o.onclick = function () {
+          document.querySelectorAll('.theme-opt').forEach(function (x) { x.classList.remove('on'); });
+          o.classList.add('on'); refreshPreview();
+        };
+        themes.appendChild(o);
+      });
+      bindInputs();
+      $('result').style.display = 'none';
+    }
+    function mkField(f) {
+      var w = el('div', 'field');
+      var lb = el('label'); lb.textContent = f.lb + (f.req || /选填/.test(f.lb) ? '' : '（选填）');
+      if (f.max) { var ct = el('span', 'counter'); ct.textContent = '0/' + f.max; lb.appendChild(ct); }
+      w.appendChild(lb);
+      var inp;
+      if (f.type === 'area') {
+        inp = document.createElement('textarea');
+        inp.rows = 2;
+      } else {
+        inp = el('input');
+        inp.type = f.type === 'tel' ? 'tel' : f.type === 'email' ? 'email' : 'text';
+      }
+      inp.dataset.fid = f.id;
+      if (f.max) {
+        inp.maxLength = f.max;
+        inp.addEventListener('input', function () { ct.textContent = inp.value.length + '/' + f.max; });
+      }
+      if (f.ph) inp.placeholder = f.ph;
+      w.appendChild(inp);
+      return w;
+    }
+    function bindInputs() {
+      document.querySelectorAll('#form-box input, #form-box textarea').forEach(function (inp) {
+        inp.addEventListener('input', refreshPreview);
+      });
+    }
+    function secTitle(no, txt) {
+      var h = el('h2');
+      var n = el('span', 'no', String(no));
+      h.appendChild(n); h.appendChild(document.createTextNode(txt));
+      return h;
+    }
+    function $(id) { return document.getElementById(id); }
+    function collect() {
+      var k = curTpl(), t = TPL[k];
+      var d = { v: 2, k: k, c: curTheme() };
+      var missing = null;
+      t.fd.forEach(function (f) {
+        if (f.type === 'rows') {
+          var arr = [];
+          for (var i = 0; i < f.max; i++) {
+            var a = document.querySelector('[data-rows="' + f.id + ':n:' + i + '"]').value.trim();
+            var v = document.querySelector('[data-rows="' + f.id + ':v:' + i + '"]').value.trim();
+            if (f.url) v = cleanUrl(v);
+            if (a && v) arr.push([a, v]);
+          }
+          if (arr.length) d[f.id] = arr;
+          if (f.req && !arr.length && !missing) missing = f.lb;
+        } else {
+          var inp = document.querySelector('[data-fid="' + f.id + '"]');
+          var val = inp.value.trim();
+          if (val) d[f.id] = val;
+          if (f.req && !val && !missing) missing = f.lb;
+        }
+      });
+      return { d: d, missing: missing };
+    }
+    function refreshPreview() {
+      var sc = $('preview-screen');
+      sc.innerHTML = '';
+      var r = collect();
+      sc.appendChild(renderCard(r.d));
+    }
+    go.onclick = function () {
+      var r = collect();
+      if (r.missing) { toast('还有必填项：' + r.missing); return; }
+      var url = baseHref() + '#d=' + b64urlEncode(JSON.stringify(r.d));
+      var len = url.length;
+      $('gen-url').value = url;
+      $('result').style.display = 'block';
+      var pct = Math.min(100, Math.round(len / NFC_LIMIT * 100));
+      $('meter-fill').style.width = pct + '%';
+      $('meter-fill').style.background = len > NFC_LIMIT ? '#ef4444' : (len > NFC_WARN ? '#f59e0b' : '#22c55e');
+      $('meter-text').textContent = '链接长度 ' + len + ' / ' + NFC_LIMIT + (len > NFC_LIMIT ? ' —— 超出卡的容量！请精简内容' : '（卡的 NFC 容量上限，越短越稳）');
+      if (len > NFC_LIMIT) toast('链接太长，卡的 NFC 装不下，请精简');
+      var qa = $('qr-area');
+      qa.innerHTML = '';
+      try {
+        var qr = qrcode(0, 'M');
+        qr.addData(url); qr.make();
+        qa.innerHTML = qr.createSvgTag({ cellSize: 4, margin: 2 });
+        qa.appendChild(el('p', null, '在电脑上填的？扫这个码把链接带上手机'));
+      } catch (e) {
+        qa.appendChild(el('p', null, '二维码生成失败，不影响使用，直接复制链接即可'));
+      }
+      $('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    };
+    $('copy-btn').onclick = function () {
+      var u = $('gen-url').value;
+      if (u) copyText(u, '链接已复制，去 NFC Tools 写入吧');
+    };
+
+    rebuildForm();
+    refreshPreview();
+  }
+
+  /* ================= 入口 ================= */
+  function boot() {
+    var m = location.hash.match(/^#d=([A-Za-z0-9\-_]+)$/);
+    if (!m) { runMaker(); return; }
+    try {
+      var d = JSON.parse(b64urlDecode(m[1]));
+      if (!d || typeof d !== 'object') throw 0;
+      var k = RENDER[d.k] ? d.k : 'card';
+      if (k === 'card' && typeof d.n !== 'string') throw 0;
+      if (k !== 'card' && d.v !== 2) throw 0;
+      runDisplay(d);
+    } catch (e) { runBroken(); }
+  }
+  boot();
+})();
+</script>
+</body>
+</html>
