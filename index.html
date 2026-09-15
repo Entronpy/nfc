@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
 <title>碰一碰 · NFC 卡片内容定制</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -493,14 +494,22 @@
     var law = el('p', 'hint', '内容由你自己生成并写入自己的卡片：请遵守法律与校规，勿写他人隐私或敏感信息。');
     law.style.marginTop = '10px';
     p3.appendChild(law);
-    var tos = el('p', 'hint');
-    tos.style.marginTop = '4px';
-    tos.appendChild(document.createTextNode('点击生成即表示已阅读并同意 '));
-    var tosA = el('a', null, '《免责声明与用户权益承诺书》');
-    tosA.href = 'terms.html'; tosA.target = '_blank'; tosA.rel = 'noopener';
-    tosA.style.textDecoration = 'underline';
-    tos.appendChild(tosA);
-    p3.appendChild(tos);
+    /* click-wrap 同意（v2）：勾选一次本地记住，法律效力强于"点击即视为同意" */
+    var agreeWrap = el('label');
+    agreeWrap.style.cssText = 'display:flex;align-items:flex-start;gap:7px;margin:10px 0 2px;font-size:12.5px;color:#556;cursor:pointer;';
+    var agreeBox = el('input'); agreeBox.type = 'checkbox'; agreeBox.id = 'agree-tos';
+    agreeBox.style.marginTop = '2px';
+    if (localStorage.getItem('nfc-tos') === 'v2') agreeBox.checked = true;
+    agreeWrap.appendChild(agreeBox);
+    var at = el('span');
+    at.appendChild(document.createTextNode('我已阅读并同意 '));
+    var atos = el('a', null, '《免责声明与用户权益承诺书》');
+    atos.href = 'terms.html'; atos.target = '_blank'; atos.rel = 'noopener';
+    atos.style.textDecoration = 'underline';
+    at.appendChild(atos);
+    at.appendChild(document.createTextNode('，并确认我的内容合法合规'));
+    agreeWrap.appendChild(at);
+    p3.appendChild(agreeWrap);
     left.appendChild(p3);
 
     /* ---- 右：实时预览 ---- */
@@ -636,6 +645,9 @@
       sc.appendChild(renderCard(r.d));
     }
     go.onclick = function () {
+      var agreeBox = document.getElementById('agree-tos');
+      if (!agreeBox.checked) { toast('请先勾选同意《免责声明与用户权益承诺书》'); agreeBox.focus(); return; }
+      localStorage.setItem('nfc-tos', 'v2');
       var r = collect();
       if (r.missing) { toast('还有必填项：' + r.missing); return; }
       var url = baseHref() + '#d=' + b64urlEncode(JSON.stringify(r.d));
