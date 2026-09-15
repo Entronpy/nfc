@@ -308,6 +308,9 @@
     return u;
   }
   function baseHref() { return location.href.split('#')[0]; }
+  /* 卡片链接的唯一对外地址：无论页面从哪里打开（本地管理页/线上/文件），
+     生成给 NFC 用的链接永远指向线上正式站——防止本地测试链接被误刷进真卡 */
+  var CANON = 'https://entronpy.github.io/nfc/';
 
   /* NFC 容量：CUID-1K NDEF 映射后约 716 字节，留余量取 690 为红线 */
   var NFC_LIMIT = 690, NFC_WARN = 620;
@@ -867,7 +870,7 @@
       localStorage.setItem('nfc-tos', 'v2');
       var r = collect();
       if (r.missing) { toast('还有必填项：' + r.missing); return; }
-      var url = baseHref() + '#d=' + b64urlEncode(JSON.stringify(r.d));
+      var url = CANON + '#d=' + b64urlEncode(JSON.stringify(r.d));
       var len = url.length;
       $('gen-url').value = url;
       $('result').style.display = 'block';
