@@ -66,15 +66,20 @@
   .qr-area svg { background: #fff; padding: 8px; border-radius: 10px; border: 1px solid #e3e8ef; }
   .qr-area p { font-size: 12.5px; color: #778; margin-top: 6px; }
 
-  .phone { width: 100%; max-width: 330px; margin: 0 auto; background: #fff; border-radius: 26px; padding: 12px; box-shadow: 0 8px 30px rgba(20,30,60,.16); border: 6px solid #222c3a; }
-  .phone .screen { border-radius: 16px; overflow: hidden; min-height: 480px; background: #f2f4f8; display: flex; align-items: stretch; }
+  .phone { width: 100%; max-width: 330px; margin: 0 auto; background: #10151c; border-radius: 40px; padding: 10px; box-shadow: 0 24px 52px rgba(15,25,50,.32), inset 0 0 0 2px #2b3542; }
+  .p-island { width: 78px; height: 20px; background: #10151c; border-radius: 999px; margin: 10px auto -12px; position: relative; z-index: 2; box-shadow: inset 0 0 0 1px #242e3a; }
+  .p-status { display: flex; justify-content: space-between; align-items: center; padding: 8px 18px 4px; font-size: 10.5px; font-weight: 600; color: #6b7684; letter-spacing: .5px; }
+  .p-home { width: 88px; height: 4px; border-radius: 2px; background: #39434f; margin: 8px auto 3px; }
+  .phone .screen { border-radius: 26px; overflow: hidden; min-height: 500px; background: #f2f4f8; display: flex; flex-direction: column; align-items: stretch; }
+  .phone .screen .nfc-card { flex: 1; }
   .preview-note { text-align: center; font-size: 12.5px; color: #889; margin-top: 10px; }
   .sticky { position: sticky; top: 16px; }
 
-  /* ---------- 卡片主题（CSS 变量驱动，预览与展示共用） ---------- */
+  /* ---------- 卡片（预览与展示共用）：风格引擎在此基础上叠加 ---------- */
   .nfc-card { --row-bg: rgba(0,0,0,.035); --row-bd: rgba(20,40,80,.12); --ac-fg: #fff;
+    position: relative; overflow: hidden; isolation: isolate;
     width: 100%; padding: 28px 20px 20px; display: flex; flex-direction: column; align-items: center; text-align: center;
-    font-family: inherit; background: var(--bg); color: var(--fg); }
+    font-family: var(--font-d, inherit); background: var(--bg); color: var(--fg); }
   .nfc-card .avatar { width: 74px; height: 74px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: 600; margin-bottom: 12px; background: var(--av-bg); color: var(--av-fg); }
   .nfc-card .name { font-size: 22px; font-weight: 700; letter-spacing: 1px; }
   .nfc-card .tag { font-size: 13px; margin-top: 3px; opacity: .85; }
@@ -108,6 +113,74 @@
   .t-orange { --bg:linear-gradient(160deg,#fff3e8,#ffe4cd); --fg:#6b3a12; --ac:#e96f22; --av-bg:#ffd9b8; --av-fg:#c65a14; --row-bg:rgba(255,255,255,.55); --row-bd:rgba(198,90,20,.24); }
   .t-lemon  { --bg:#fdfbe4; --fg:#5c5413; --ac:#a89b16; --av-bg:#f3ecae; --av-fg:#7d721b; --row-bg:rgba(255,255,255,.6); --row-bd:rgba(125,114,27,.28); }
   .t-purple { --bg:linear-gradient(160deg,#241b3d,#150f2a); --fg:#ece7fb; --ac:#a78bfa; --ac-fg:#1e1440; --av-bg:#372a5c; --av-fg:#c4b5fd; --row-bg:rgba(255,255,255,.07); --row-bd:rgba(167,139,250,.3); }
+
+  /* ---------- 艺术风格引擎（8 个，用途×风格父子结构） ----------
+     方法论来源：anthropics/frontend-design skill（signature element + 从题材找视觉语言）
+     + 2026 趋势（液态玻璃/light skeuomorphism/复古重组） */
+  .s-flat { --bg:#f7f8fa; --fg:#1f2733; --ac:#2563eb; --av-bg:#e8effc; --av-fg:#2563eb; --row-bg:#ffffff; --row-bd:#e6eaf0; }
+  .s-flat .row { box-shadow:0 1px 3px rgba(20,30,50,.06); }
+  .s-flat .sep { width:28px; }
+
+  .s-editorial { --bg:#f3efe6; --fg:#241f16; --ac:#8a3324; --av-bg:transparent; --av-fg:#241f16; --row-bg:transparent; --row-bd:rgba(36,31,22,.3); font-family:Georgia,"Times New Roman","Songti SC",SimSun,serif; }
+  .s-editorial::before { content:""; position:absolute; z-index:-1; top:16px; left:22px; right:22px; height:6px; border-top:2px solid #241f16; border-bottom:1px solid #241f16; }
+  .s-editorial::after { content:"NO.01"; position:absolute; z-index:-1; top:30px; right:26px; font-size:10px; letter-spacing:.28em; color:rgba(36,31,22,.5); }
+  .s-editorial .tag { letter-spacing:.22em; font-size:11px; }
+  .s-editorial .name { font-size:26px; font-weight:600; }
+  .s-editorial .bio { font-style:italic; }
+  .s-editorial .row { border-radius:0; border-width:0 0 1px 0; box-shadow:none; }
+  .s-editorial .row .act { border:1px solid rgba(36,31,22,.4); border-radius:2px; }
+  .s-editorial .link-btn { border-radius:0; font-weight:400; }
+  .s-editorial .sep { width:0; height:0; margin:8px 0 2px; }
+
+  .s-pixel { --bg:#0e1216; --fg:#c8f7c5; --ac:#ffd93d; --ac-fg:#10160f; --av-bg:#1b232c; --av-fg:#7cf77c; --row-bg:#141b22; --row-bd:#31463a; font-family:"Courier New",ui-monospace,Consolas,monospace; }
+  .s-pixel::after { content:""; position:absolute; inset:0; pointer-events:none; background:repeating-linear-gradient(0deg, rgba(200,247,197,.05) 0 1px, transparent 1px 3px); }
+  .s-pixel .name { letter-spacing:3px; text-shadow:0 0 10px rgba(124,247,124,.45); }
+  .s-pixel .tag, .s-pixel .bio { font-size:12.5px; }
+  .s-pixel .avatar { border-radius:0; box-shadow:0 0 0 2px #31463a, 0 0 0 4px #0e1216, 0 0 0 5px #31463a; }
+  .s-pixel .row { border-radius:0; box-shadow:inset 0 0 0 1.5px var(--row-bd); }
+  .s-pixel .link-btn { border-radius:0; box-shadow:0 0 0 1.5px var(--ac); }
+  .s-pixel .sep { background:repeating-linear-gradient(90deg, var(--ac) 0 5px, transparent 5px 10px); height:4px; }
+
+  .s-glass { --bg:linear-gradient(140deg,#372a68,#7a4fb3 48%,#2f6fc2); --fg:#f5f3ff; --ac:#ffffff; --ac-fg:#372a68; --av-bg:rgba(255,255,255,.28); --av-fg:#ffffff; --row-bg:rgba(255,255,255,.13); --row-bd:rgba(255,255,255,.38); }
+  .s-glass::before { content:""; position:absolute; z-index:-1; top:-50px; right:-50px; width:190px; height:190px; border-radius:50%; background:radial-gradient(circle,#ff8ad4 0%,transparent 68%); filter:blur(26px); }
+  .s-glass::after { content:""; position:absolute; z-index:-1; bottom:-60px; left:-50px; width:210px; height:210px; border-radius:50%; background:radial-gradient(circle,#5ad1ff 0%,transparent 68%); filter:blur(26px); }
+  .s-glass .row { backdrop-filter:blur(7px); -webkit-backdrop-filter:blur(7px); }
+  .s-glass .link-btn { box-shadow:0 4px 18px rgba(255,255,255,.22); }
+  .s-glass .avatar { box-shadow:inset 0 0 0 1px rgba(255,255,255,.5); }
+
+  .s-ink { --bg:#f6f2e8; --fg:#2c261d; --ac:#a63226; --av-bg:#e9e2d0; --av-fg:#2c261d; --row-bg:rgba(44,38,29,.045); --row-bd:rgba(44,38,29,.22); font-family:"Kaiti SC",KaiTi,STKaiti,"Songti SC",serif; }
+  .s-ink::before { content:""; position:absolute; z-index:-1; inset:0; background:radial-gradient(ellipse at 18% 8%, rgba(44,38,29,.07), transparent 38%), radial-gradient(ellipse at 88% 85%, rgba(44,38,29,.06), transparent 34%); }
+  .s-ink::after { content:"印"; position:absolute; top:16px; right:18px; width:32px; height:32px; line-height:32px; text-align:center; font-size:15px; color:#f6f2e8; background:#a63226; border-radius:4px; opacity:.88; }
+  .s-ink .name { font-size:25px; letter-spacing:2px; }
+  .s-ink .row { border-radius:3px; }
+  .s-ink .link-btn { border-radius:3px; }
+  .s-ink .sep { width:34px; height:2px; }
+
+  .s-doodle { --bg:#fdf8ee; --fg:#3d3229; --ac:#e8734a; --ac-fg:#ffffff; --av-bg:#f7e4cf; --av-fg:#c05b3a; --row-bg:#ffffff; --row-bd:#3d3229; font-family:"Kaiti SC",KaiTi,STKaiti,"Yuanti SC","Microsoft YaHei",sans-serif; }
+  .s-doodle::before { content:"✎ ~"; position:absolute; top:12px; right:18px; font-size:15px; color:rgba(61,50,41,.45); }
+  .s-doodle .avatar { border:2px solid #3d3229; border-radius:46% 54% 55% 45%/52% 44% 56% 48%; }
+  .s-doodle .name { font-size:23px; }
+  .s-doodle .row { border:1.5px solid #3d3229; border-radius:11px 15px 9px 14px; box-shadow:2px 3px 0 rgba(61,50,41,.18); }
+  .s-doodle .rows .row:nth-child(odd) { transform:rotate(-.7deg); }
+  .s-doodle .rows .row:nth-child(even) { transform:rotate(.6deg); }
+  .s-doodle .link-btn { border:1.5px solid #3d3229; border-radius:13px 9px 14px 10px; box-shadow:2px 3px 0 rgba(61,50,41,.22); }
+  .s-doodle .sep { background:repeating-linear-gradient(90deg,#3d3229 0 8px,transparent 8px 14px); height:2px; width:70px; }
+
+  .s-pop { --bg:#ffd93d; --fg:#161616; --ac:#161616; --ac-fg:#ffd93d; --av-bg:#ff5d73; --av-fg:#ffffff; --row-bg:#ffffff; --row-bd:#161616; }
+  .s-pop::before { content:""; position:absolute; z-index:-1; inset:0; background-image:radial-gradient(rgba(22,22,22,.16) 1.5px, transparent 1.6px); background-size:13px 13px; }
+  .s-pop .avatar { border:2.5px solid #161616; box-shadow:3px 3px 0 #161616; }
+  .s-pop .name { font-weight:900; letter-spacing:1px; }
+  .s-pop .row { border:2px solid #161616; border-radius:10px; box-shadow:3px 3px 0 #161616; }
+  .s-pop .row .act { border:1.5px solid #161616; border-radius:6px; }
+  .s-pop .link-btn { border:2px solid #161616; border-radius:10px; box-shadow:3px 3px 0 #161616; }
+  .s-pop .sep { background:#161616; width:54px; height:3px; }
+
+  .s-y2k { --bg:linear-gradient(150deg,#0f0c29,#302b63 55%,#1d1b3a); --fg:#eaf6ff; --ac:#00f0ff; --ac-fg:#001318; --av-bg:linear-gradient(135deg,#00f0ff,#ff3ddc); --av-fg:#001318; --row-bg:rgba(0,240,255,.06); --row-bd:rgba(0,240,255,.4); }
+  .s-y2k::before { content:"✦"; position:absolute; top:14px; left:18px; color:#ff3ddc; font-size:13px; }
+  .s-y2k::after { content:"✦"; position:absolute; bottom:52px; right:22px; color:#00f0ff; font-size:17px; opacity:.85; }
+  .s-y2k .name { text-shadow:0 0 14px rgba(0,240,255,.8), 0 0 34px rgba(255,61,220,.45); letter-spacing:1.5px; }
+  .s-y2k .link-btn { background:linear-gradient(90deg,#00f0ff,#ff3ddc); color:#001318; box-shadow:0 0 18px rgba(0,240,255,.35); }
+  .s-y2k .avatar { box-shadow:0 0 14px rgba(255,61,220,.5); }
 
   .display-stage { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px 14px; }
   .display-card-wrap { width: 100%; max-width: 380px; border-radius: 22px; overflow: hidden; box-shadow: 0 12px 46px rgba(15,25,50,.22); }
@@ -174,15 +247,28 @@
   /* NFC 容量：CUID-1K NDEF 映射后约 716 字节，留余量取 690 为红线 */
   var NFC_LIMIT = 690, NFC_WARN = 620;
 
-  /* ================= 模板注册表 ================= */
-  function TH(id, name, css) { return { id: id, name: name, css: css }; }
+  /* ================= 模板注册表（用途 → 3 个艺术风格，父子结构） ================= */
+  function ST(id, name, desc, sw) { return { id: id, name: name, desc: desc, sw: sw }; }
+  /* 旧版配色（2026-09-15 前生成的链接，保持可渲染） */
+  var LEGACY_TH = {
+    card: ['t-white', 't-night', 't-blue'], love: ['t-pink', 't-star', 't-cream'],
+    grad: ['t-ink', 't-night', 't-green'], club: ['t-orange', 't-purple', 't-white'],
+    flea: ['t-lemon', 't-white', 't-night'], game: ['t-purple', 't-star', 't-night']
+  };
+  var STYLE_IDS = { flat: 1, editorial: 1, glass: 1, pixel: 1, ink: 1, doodle: 1, pop: 1, y2k: 1 };
+  function cardCls(d) {
+    if (d.sty && STYLE_IDS[d.sty]) return 's-' + d.sty;
+    var k = RENDER[d.k] ? d.k : 'card';
+    var arr = LEGACY_TH[k] || LEGACY_TH.card;
+    return arr[d.c] || arr[0];
+  }
 
   var TPL = {
     card: {
       nm: '电子名片', ic: '💼', de: '社交 · 求职 · 递名片',
-      th: [TH('t-white', '清爽白', 'linear-gradient(135deg,#f6f8fb,#e3ecff)'),
-           TH('t-night', '静谧夜', 'linear-gradient(135deg,#12161d,#1c2530)'),
-           TH('t-blue', '海之蓝', 'linear-gradient(135deg,#0b3a75,#0a2a52)')],
+      st: [ST('flat', '清爽极简', '白底细线 · 商务通用', 'linear-gradient(135deg,#f7f8fa,#dfe7f2)'),
+           ST('editorial', '杂志质感', '衬线刊头 · 老牌大刊味', 'linear-gradient(135deg,#f3efe6,#cfc4ae)'),
+           ST('glass', '液态玻璃', '光斑毛玻璃 · 2026 风', 'linear-gradient(135deg,#7a4fb3,#3e7bd6)')],
       fd: [
         { id: 'n', lb: '名字（必填）', req: 1, max: 24, ph: '显示在卡片上的名字' },
         { id: 't', lb: '身份标签（选填）', max: 30, ph: '如：海大机械 28 级 / 摄影爱好者' },
@@ -197,9 +283,9 @@
     },
     love: {
       nm: '表白心意', ic: '💌', de: '把话写进卡里',
-      th: [TH('t-pink', '心动粉', 'linear-gradient(135deg,#ffe9ef,#ffd9e4)'),
-           TH('t-star', '星空夜', 'linear-gradient(135deg,#1a1440,#0d0a24)'),
-           TH('t-cream', '奶油信纸', 'linear-gradient(135deg,#fbf5ea,#f0e2c8)')],
+      st: [ST('doodle', '手账情书', '歪歪扭扭 · 手写感', 'linear-gradient(135deg,#fdf8ee,#f7e4cf)'),
+           ST('glass', '星河玻璃', '深空光斑 · 告白夜', 'linear-gradient(135deg,#372a68,#5ad1ff)'),
+           ST('pop', '波普心动', '甜系大字 · 敢于直球', 'linear-gradient(135deg,#ffd93d,#ff5d73)')],
       fd: [
         { id: 'to', lb: '致（TA 的名字/昵称）', req: 1, max: 20, ph: '如：小雨', half: 1 },
         { id: 'fm', lb: '署名（留空=匿名）', max: 20, ph: '如：一个欣赏你的人', half: 1 },
@@ -209,9 +295,9 @@
     },
     grad: {
       nm: '毕业纪念', ic: '🎓', de: '留给母校和同学',
-      th: [TH('t-ink', '学院纸', 'linear-gradient(135deg,#f7f2e7,#ece2cc)'),
-           TH('t-night', '静谧夜', 'linear-gradient(135deg,#12161d,#1c2530)'),
-           TH('t-green', '墨绿', 'linear-gradient(135deg,#0f3d2e,#0a2c21)')],
+      st: [ST('editorial', '学院纪念志', '衬线刊头 · 毕业典礼', 'linear-gradient(135deg,#f3efe6,#cfc4ae)'),
+           ST('ink', '水墨留名', '宣纸印章 · 中式纪念', 'linear-gradient(135deg,#f6f2e8,#cfc6b4)'),
+           ST('doodle', '同学录', '涂鸦手写 · 青春涂满', 'linear-gradient(135deg,#fdf8ee,#f7e4cf)')],
       fd: [
         { id: 'sc', lb: '学校 / 学院', req: 1, max: 30, ph: '如：广东海洋大学 滨海农业学院', half: 1 },
         { id: 'yr', lb: '届别', max: 10, ph: '如：2027 届', half: 1 },
@@ -221,9 +307,9 @@
     },
     club: {
       nm: '社团招新', ic: '🚩', de: '摆摊 · 拉新 · 传单',
-      th: [TH('t-orange', '活力橙', 'linear-gradient(135deg,#fff3e8,#ffe4cd)'),
-           TH('t-purple', '电竞紫', 'linear-gradient(135deg,#241b3d,#150f2a)'),
-           TH('t-white', '清爽白', 'linear-gradient(135deg,#f6f8fb,#e3ecff)')],
+      st: [ST('y2k', '电音霓虹', '发光边框 · 夜场气质', 'linear-gradient(135deg,#302b63,#00f0ff)'),
+           ST('pop', '波普海报', '硬朗大字 · 纳新炸场', 'linear-gradient(135deg,#ffd93d,#ff5d73)'),
+           ST('flat', '简约直给', '一屏说清 · 效率招新', 'linear-gradient(135deg,#f7f8fa,#dfe7f2)')],
       fd: [
         { id: 'n', lb: '社团名（必填）', req: 1, max: 24, ph: '如：海大机器人协会' },
         { id: 'sl', lb: '一句话口号', max: 30, ph: '如：把想法焊进现实', half: 1 },
@@ -235,9 +321,9 @@
     },
     flea: {
       nm: '二手出物', ic: '🏷️', de: '毕业甩卖 · 好物转手',
-      th: [TH('t-lemon', '柠檬黄', 'linear-gradient(135deg,#fdfbe4,#f5eda8)'),
-           TH('t-white', '清爽白', 'linear-gradient(135deg,#f6f8fb,#e3ecff)'),
-           TH('t-night', '静谧夜', 'linear-gradient(135deg,#12161d,#1c2530)')],
+      st: [ST('doodle', '市集手写牌', '像价格牌 · 亲切', 'linear-gradient(135deg,#fdf8ee,#f7e4cf)'),
+           ST('pop', '甩卖大字报', '全场最大 · 一眼成交', 'linear-gradient(135deg,#ffd93d,#ff5d73)'),
+           ST('flat', '极简清单', '干净列表 · 信息优先', 'linear-gradient(135deg,#f7f8fa,#dfe7f2)')],
       fd: [
         { id: 'it', lb: '物品名（必填）', req: 1, max: 24, ph: '如：Kindle Paperwhite 5' },
         { id: 'pr', lb: '价格（元）', req: 1, max: 10, ph: '如：299 或 299 可刀', half: 1 },
@@ -250,9 +336,9 @@
     },
     game: {
       nm: '游戏开黑', ic: '🎮', de: '室友 · 网友 · 找搭子',
-      th: [TH('t-purple', '电竞紫', 'linear-gradient(135deg,#241b3d,#150f2a)'),
-           TH('t-star', '星空夜', 'linear-gradient(135deg,#1a1440,#0d0a24)'),
-           TH('t-night', '静谧夜', 'linear-gradient(135deg,#12161d,#1c2530)')],
+      st: [ST('pixel', '8-bit 掌机', '扫描线 · 红白机', 'linear-gradient(135deg,#0e1216,#1b232c)'),
+           ST('y2k', '电竞霓虹', '赛博光效 · 战绩展示', 'linear-gradient(135deg,#302b63,#00f0ff)'),
+           ST('glass', '星战玻璃', '深空玻璃 · 开黑黑话', 'linear-gradient(135deg,#372a68,#5ad1ff)')],
       fd: [
         { id: 'nk', lb: '游戏昵称（必填）', req: 1, max: 20, ph: '如：深夜修狗' },
         { id: 'rk', lb: '段位 / 称号（选填）', max: 20, ph: '如：王者50星 / 大师', half: 1 },
@@ -319,8 +405,7 @@
 
   var RENDER = {
     card: function (d) {
-      var cls = (TPL.card.th[d.c] || TPL.card.th[0]).id;
-      var c = cardShell(cls);
+      var c = cardShell(cardCls(d));
       head(c, d, (d.n || '?').trim().charAt(0).toUpperCase(), d.n || '未命名', d.t);
       if (d.s) c.appendChild(el('div', 'bio', d.s));
       c.appendChild(el('div', 'sep'));
@@ -332,8 +417,7 @@
       return finish(c);
     },
     love: function (d) {
-      var cls = (TPL.love.th[d.c] || TPL.love.th[0]).id;
-      var c = cardShell(cls);
+      var c = cardShell(cardCls(d));
       c.appendChild(el('div', 'heart', '❤️'));
       c.appendChild(el('div', 'name', '致 ' + (d.to || '你')));
       if (d.msg) c.appendChild(el('div', 'quote', d.msg));
@@ -342,8 +426,7 @@
       return finish(c);
     },
     grad: function (d) {
-      var cls = (TPL.grad.th[d.c] || TPL.grad.th[0]).id;
-      var c = cardShell(cls);
+      var c = cardShell(cardCls(d));
       head(c, d, '🎓', d.sc || '毕业纪念', null);
       if (d.yr) c.appendChild(el('div', 'badge', d.yr));
       if (d.msg) c.appendChild(el('div', 'quote', d.msg));
@@ -351,8 +434,7 @@
       return finish(c);
     },
     club: function (d) {
-      var cls = (TPL.club.th[d.c] || TPL.club.th[0]).id;
-      var c = cardShell(cls);
+      var c = cardShell(cardCls(d));
       head(c, d, (d.n || '社').charAt(0), d.n || '社团', d.sl);
       if (d.it) c.appendChild(el('div', 'bio', d.it));
       c.appendChild(el('div', 'sep'));
@@ -361,8 +443,7 @@
       return finish(c);
     },
     flea: function (d) {
-      var cls = (TPL.flea.th[d.c] || TPL.flea.th[0]).id;
-      var c = cardShell(cls);
+      var c = cardShell(cardCls(d));
       head(c, d, '🏷️', d.it || '出个宝贝', null);
       if (d.pr) {
         var pl = el('div', 'price-line');
@@ -378,8 +459,7 @@
       return finish(c);
     },
     game: function (d) {
-      var cls = (TPL.game.th[d.c] || TPL.game.th[0]).id;
-      var c = cardShell(cls);
+      var c = cardShell(cardCls(d));
       head(c, d, '🎮', d.nk || '玩家', d.rk);
       if (d.nt) c.appendChild(el('div', 'badge', '🕒 ' + d.nt));
       c.appendChild(el('div', 'sep'));
@@ -466,9 +546,9 @@
     p1.appendChild(formBox);
     left.appendChild(p1);
 
-    /* ---- 2 配色 ---- */
+    /* ---- 2 艺术风格 ---- */
     var p2 = el('div', 'panel');
-    p2.appendChild(secTitle('2', '选个配色'));
+    p2.appendChild(secTitle('2', '选个艺术风格'));
     var themes = el('div', 'themes');
     p2.appendChild(themes);
     left.appendChild(p2);
@@ -512,12 +592,18 @@
     p3.appendChild(agreeWrap);
     left.appendChild(p3);
 
-    /* ---- 右：实时预览 ---- */
+    /* ---- 右：实时预览（真机质感外壳） ---- */
     var pv = el('div', 'panel sticky');
     pv.appendChild(el('h2', null, '实时预览'));
     var phone = el('div', 'phone');
+    var island = el('div', 'p-island'); phone.appendChild(island);
     var screen = el('div', 'screen'); screen.id = 'preview-screen';
+    var pstatus = el('div', 'p-status');
+    pstatus.appendChild(el('span', null, '9:41'));
+    pstatus.appendChild(el('span', null, '●●●▲ 📶 🔋'));
+    screen.appendChild(pstatus);
     phone.appendChild(screen);
+    var phome = el('div', 'p-home'); phone.appendChild(phome);
     pv.appendChild(phone);
     pv.appendChild(el('p', 'preview-note', '别人碰你的卡时，看到的就是这个画面'));
     right.appendChild(pv);
@@ -527,9 +613,11 @@
       var on = document.querySelector('.tpl-opt.on');
       return on ? on.dataset.k : 'card';
     }
-    function curTheme() {
+    function curStyle() {
       var on = document.querySelector('.theme-opt.on');
-      return on ? Number(on.dataset.idx) : 0;
+      var i = on ? Number(on.dataset.idx) : 0;
+      var st = TPL[curTpl()].st;
+      return st[i] ? st[i].id : 'flat';
     }
     function rebuildForm() {
       var t = TPL[curTpl()];
@@ -565,11 +653,16 @@
         }
       });
       flushHalves();
-      t.th.forEach(function (th, i) {
+      t.st.forEach(function (s, i) {
         var o = el('div', 'theme-opt' + (i === 0 ? ' on' : ''));
         o.dataset.idx = i;
-        var sw = el('div', 'swatch'); sw.style.background = th.css;
-        o.appendChild(sw); o.appendChild(el('div', null, th.name));
+        o.title = s.desc;
+        var sw = el('div', 'swatch'); sw.style.background = s.sw;
+        o.appendChild(sw);
+        o.appendChild(el('div', null, s.name));
+        var dv = el('div'); dv.textContent = s.desc;
+        dv.style.cssText = 'font-size:10.5px;color:#8892a0;line-height:1.3;margin-top:1px;';
+        o.appendChild(dv);
         o.onclick = function () {
           document.querySelectorAll('.theme-opt').forEach(function (x) { x.classList.remove('on'); });
           o.classList.add('on'); refreshPreview();
@@ -616,7 +709,7 @@
     function $(id) { return document.getElementById(id); }
     function collect() {
       var k = curTpl(), t = TPL[k];
-      var d = { v: 2, k: k, c: curTheme() };
+      var d = { v: 2, k: k, sty: curStyle() };
       var missing = null;
       t.fd.forEach(function (f) {
         if (f.type === 'rows') {
