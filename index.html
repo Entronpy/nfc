@@ -592,6 +592,46 @@
     p3.appendChild(agreeWrap);
     left.appendChild(p3);
 
+    /* ---- 4 写卡教程（内置引导 + 官方 APP 下载） ---- */
+    var p6 = el('div', 'panel');
+    var det = document.createElement('details');
+    var sum = document.createElement('summary');
+    sum.textContent = '📱 没装 APP？三步把链接写进卡（点开教程）';
+    sum.style.cssText = 'cursor:pointer;font-size:14px;font-weight:600;color:#334;';
+    det.appendChild(sum);
+    var tbox = el('div'); tbox.style.cssText = 'margin-top:12px;font-size:13.5px;';
+    function tstep(no, title, body) {
+      var s = el('div'); s.style.cssText = 'margin:12px 0;';
+      var h = el('div');
+      var n = el('b'); n.textContent = '第 ' + no + ' 步 · '; n.style.color = '#2563eb';
+      var t = el('b'); t.textContent = title;
+      h.appendChild(n); h.appendChild(t);
+      s.appendChild(h);
+      var p = el('div'); p.style.marginTop = '2px'; p.innerHTML = body;
+      s.appendChild(p);
+      return s;
+    }
+    tbox.appendChild(tstep('1', '下载免费的 NFC Tools APP',
+      '安卓手机：<a href="https://apps.wakdev.com/nfctools/releases/nfctools_se-latest.apk" style="color:#2563eb;text-decoration:underline;"><b>点这里下载官方直装包</b></a>（wakdev 官网托管，无需应用商店，永远最新版，约 20MB）。' +
+      'iPhone：去 <a href="https://apps.apple.com/cn/app/nfc-tools/id1252962749" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:underline;">App Store 搜 NFC Tools</a>。APP 版权归 wakdev 所有。'));
+    tbox.appendChild(tstep('2', '添加「URL / URI」记录并粘贴链接',
+      '打开 APP → 底部「写」→「添加记录」→ 在列表里选 <b>URL / URI</b>（下图第二行）→ 把本页第 3 步复制的链接粘贴进去 → 确定。<br>' +
+      '<img src="guide-url.jpg" alt="URL / URI 记录位置" style="max-width:62%;border-radius:10px;border:1px solid #e3e8ef;margin-top:6px;display:block;">'));
+    tbox.appendChild(tstep('3', '写入卡片',
+      '回到「写」页面 → 点「写入」→ 手机背面贴住卡片中间，慢慢小范围移动——<b>卡上的灯亮 = 正在写入</b>，出现成功提示就完成了。完成后碰一下卡验证。'));
+    var seeAll = el('div'); seeAll.style.marginTop = '10px';
+    var sa = el('a', null, '📷 查看APP完整功能菜单长图');
+    sa.href = 'guide-app-menu.jpg'; sa.target = '_blank'; sa.rel = 'noopener';
+    sa.style.cssText = 'color:#2563eb;text-decoration:underline;font-size:12.5px;';
+    seeAll.appendChild(sa);
+    tbox.appendChild(seeAll);
+    var iph = el('p', 'hint', 'iPhone 提示：需解锁后碰卡，第一次从屏幕顶部通知点入；写入卡后想换内容，重新生成本页链接再写一遍即可。');
+    iph.style.marginTop = '8px';
+    tbox.appendChild(iph);
+    det.appendChild(tbox);
+    p6.appendChild(det);
+    left.appendChild(p6);
+
     /* ---- 右：实时预览（真机质感外壳） ---- */
     var pv = el('div', 'panel sticky');
     pv.appendChild(el('h2', null, '实时预览'));
