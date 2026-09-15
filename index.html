@@ -188,8 +188,9 @@
         { id: 's', lb: '一句话介绍（选填）', type: 'area', max: 90, ph: '让别人碰卡后 3 秒记住你' },
         { id: 'p', lb: '手机号', type: 'tel', max: 20, ph: '碰卡可直接拨打', half: 1 },
         { id: 'w', lb: '微信号', max: 30, ph: '展示 + 一键复制', half: 1 },
-        { id: 'q', lb: 'QQ', max: 20, half: 1 },
+        { id: 'q', lb: 'QQ', max: 20, half: 1, tip: '填QQ号会自动用这个QQ的头像当卡片头像' },
         { id: 'e', lb: '邮箱', type: 'email', max: 40, half: 1 },
+        { id: 'av', lb: '自定义头像链接（选填）', max: 200, ph: '粘贴一张图片的网址，优先于QQ头像' },
         { type: 'rows', id: 'L', lb: '自定义链接（最多 3 个，选填）', nph: '名称，如 B站', vph: '网址，如 space.bilibili.com/xxx', url: 1, max: 3, tip: '网址不用自己加 https://，页面会自动补全。' }
       ]
     },
@@ -225,9 +226,10 @@
       fd: [
         { id: 'n', lb: '社团名（必填）', req: 1, max: 24, ph: '如：海大机器人协会' },
         { id: 'sl', lb: '一句话口号', max: 30, ph: '如：把想法焊进现实', half: 1 },
-        { id: 'qqg', lb: 'QQ 群号', max: 20, ph: '碰卡一键复制进群', half: 1 },
+        { id: 'qqg', lb: 'QQ 群号', max: 20, ph: '碰卡一键复制进群', half: 1, tip: '填群号自动用群头像当卡片头像' },
         { id: 'it', lb: '社团介绍', type: 'area', max: 160, ph: '做什么、缺什么人、活动频率' },
-        { id: 'u', lb: '报名表 / 主页链接（选填）', max: 120, ph: '如问卷或公众号链接' }
+        { id: 'u', lb: '报名表 / 主页链接（选填）', max: 120, ph: '如问卷或公众号链接' },
+        { id: 'av', lb: '社团 Logo 链接（选填）', max: 200, ph: '粘贴图片网址，优先于群头像' }
       ]
     },
     flea: {
@@ -241,7 +243,8 @@
         { id: 'cd', lb: '成色 / 说明', type: 'area', max: 140, ph: '用了多久、有什么配件、为什么出' },
         { id: 'wx', lb: '微信号', max: 30, ph: '买家一键复制', half: 1 },
         { id: 'q', lb: 'QQ', max: 20, half: 1 },
-        { id: 'nt', lb: '交易方式（选填）', max: 40, ph: '如：校内自提 / 驿站寄件' }
+        { id: 'nt', lb: '交易方式（选填）', max: 40, ph: '如：校内自提 / 驿站寄件' },
+        { id: 'av', lb: '实物照片链接（选填）', max: 200, ph: '粘贴图片网址，头像位展示宝贝照片' }
       ]
     },
     game: {
@@ -253,7 +256,8 @@
         { id: 'nk', lb: '游戏昵称（必填）', req: 1, max: 20, ph: '如：深夜修狗' },
         { id: 'rk', lb: '段位 / 称号（选填）', max: 20, ph: '如：王者50星 / 大师', half: 1 },
         { id: 'nt', lb: '在线时间（选填）', max: 40, ph: '如：工作日晚8点后', half: 1 },
-        { type: 'rows', id: 'G', lb: '游戏和 ID（最多 3 个）', nph: '游戏，如 原神', vph: '游戏 UID', url: 0, max: 3, req: 1 }
+        { type: 'rows', id: 'G', lb: '游戏和 ID（最多 3 个）', nph: '游戏，如 原神', vph: '游戏 UID', url: 0, max: 3, req: 1 },
+        { id: 'av', lb: '头像图片链接（选填）', max: 200, ph: '粘贴一张图片的网址' }
       ]
     }
   };
@@ -289,17 +293,34 @@
     a.href = href; a.target = '_blank'; a.rel = 'noopener';
     links.appendChild(a);
   }
-  function head(c, avatar, name, tag) {
-    c.appendChild(el('div', 'avatar', avatar));
+  function head(c, d, fallback, name, tag) {
+    c.appendChild(avatarEl(d, fallback));
     c.appendChild(el('div', 'name', name));
     if (tag) c.appendChild(el('div', 'tag', tag));
+  }
+  /* 头像三级优先级：自定义链接 av > QQ自动头像（个人卡用QQ号/社团卡用群号）> 字母/图标
+     图片加载失败自动回退，卡片其余内容不受影响 */
+  function avatarEl(d, fallback) {
+    var a = el('div', 'avatar');
+    var url = null;
+    if (d.av) url = d.av;
+    else if ((d.k === 'card' || !d.k) && d.q && /^[0-9]{5,12}$/.test(d.q)) url = 'https://q1.qlogo.cn/g?b=qq&nk=' + d.q + '&s=640';
+    else if (d.k === 'club' && d.qqg && /^[0-9]{5,12}$/.test(d.qqg)) url = 'https://p.qlogo.cn/gh/' + d.qqg + '/' + d.qqg + '/640';
+    if (url) {
+      var img = document.createElement('img');
+      img.src = url; img.alt = '';
+      img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%;';
+      img.onerror = function () { img.remove(); a.textContent = fallback; };
+      a.appendChild(img);
+    } else a.textContent = fallback;
+    return a;
   }
 
   var RENDER = {
     card: function (d) {
       var cls = (TPL.card.th[d.c] || TPL.card.th[0]).id;
       var c = cardShell(cls);
-      head(c, (d.n || '?').trim().charAt(0).toUpperCase(), d.n || '未命名', d.t);
+      head(c, d, (d.n || '?').trim().charAt(0).toUpperCase(), d.n || '未命名', d.t);
       if (d.s) c.appendChild(el('div', 'bio', d.s));
       c.appendChild(el('div', 'sep'));
       if (d.p) addRow(c, '📱', d.p, 'tel', d.p);
@@ -322,7 +343,7 @@
     grad: function (d) {
       var cls = (TPL.grad.th[d.c] || TPL.grad.th[0]).id;
       var c = cardShell(cls);
-      head(c, '🎓', d.sc || '毕业纪念', null);
+      head(c, d, '🎓', d.sc || '毕业纪念', null);
       if (d.yr) c.appendChild(el('div', 'badge', d.yr));
       if (d.msg) c.appendChild(el('div', 'quote', d.msg));
       if (d.fm) c.appendChild(el('div', 'sig', '—— ' + d.fm));
@@ -331,7 +352,7 @@
     club: function (d) {
       var cls = (TPL.club.th[d.c] || TPL.club.th[0]).id;
       var c = cardShell(cls);
-      head(c, (d.n || '社').charAt(0), d.n || '社团', d.sl);
+      head(c, d, (d.n || '社').charAt(0), d.n || '社团', d.sl);
       if (d.it) c.appendChild(el('div', 'bio', d.it));
       c.appendChild(el('div', 'sep'));
       if (d.qqg) addRow(c, '👥', 'QQ 群：' + d.qqg, 'copy', d.qqg);
@@ -341,7 +362,7 @@
     flea: function (d) {
       var cls = (TPL.flea.th[d.c] || TPL.flea.th[0]).id;
       var c = cardShell(cls);
-      head(c, '🏷️', d.it || '出个宝贝', null);
+      head(c, d, '🏷️', d.it || '出个宝贝', null);
       if (d.pr) {
         var pl = el('div', 'price-line');
         pl.appendChild(el('span', 'cur', '¥'));
@@ -358,7 +379,7 @@
     game: function (d) {
       var cls = (TPL.game.th[d.c] || TPL.game.th[0]).id;
       var c = cardShell(cls);
-      head(c, '🎮', d.nk || '玩家', d.rk);
+      head(c, d, '🎮', d.nk || '玩家', d.rk);
       if (d.nt) c.appendChild(el('div', 'badge', '🕒 ' + d.nt));
       c.appendChild(el('div', 'sep'));
       if (d.G) d.G.forEach(function (it) {
@@ -569,6 +590,7 @@
       }
       if (f.ph) inp.placeholder = f.ph;
       w.appendChild(inp);
+      if (f.tip) w.appendChild(el('p', 'hint', f.tip));
       return w;
     }
     function bindInputs() {
