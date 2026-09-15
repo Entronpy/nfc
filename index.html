@@ -247,6 +247,58 @@
     .nfc-card, .nfc-card *, .nfc-card::before, .nfc-card::after { animation: none !important; }
   }
 
+  /* ---------- v4 工艺层：canvas-design 方法论（哲学先行 / 题材暗线 / 重复纹理 / 克制的字） ---------- */
+  .grain { position:absolute; inset:0; z-index:3; pointer-events:none; opacity:.16; mix-blend-mode:soft-light; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E"); background-size:140px 140px; }
+  @keyframes fx-enter { from{opacity:0; transform:translateY(16px) scale(.965)} to{opacity:1; transform:none} }
+  .display-stage .nfc-card { animation:fx-enter .6s cubic-bezier(.22,1,.36,1) both; }
+  @keyframes fx-ecg { 0%{background-position-x:0} 100%{background-position-x:-120px} }
+  @keyframes fx-rot { to{transform:rotate(360deg)} }
+  @keyframes fx-gridmove { 0%{background-position-y:0,0} 100%{background-position-y:0,34px} }
+
+  /* 名片-极光：玻璃面板 + 渐变铭文 */
+  .fx-card-aurora .row { background:rgba(255,255,255,.55); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); }
+  .fx-card-aurora .name { background:linear-gradient(92deg,#2563eb,#7c3aed 60%,#0891b2); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+  /* 名片-鎏金杂志志：细密环纹（证券刻印感）+ 内框 */
+  .fx-card-magazine { --bg:radial-gradient(circle at 50% -30%, transparent 0 8px, rgba(36,31,22,.05) 8px 9px, transparent 9px 18px), #f4efe3; box-shadow:inset 0 0 0 1px rgba(36,31,22,.28), inset 0 0 0 7px transparent; }
+
+  /* 表白-手账情书：信纸横线 */
+  .fx-love-script { --bg:repeating-linear-gradient(0deg, transparent 0 27px, rgba(232,115,74,.16) 27px 28px), #fdf8ee; }
+  .fx-love-script .quote { line-height:28px; }
+  /* 表白-星河：深空底色 + 月晕 */
+  .fx-love-star { --bg:radial-gradient(circle at 76% 16%, rgba(255,217,228,.22), transparent 42%), linear-gradient(160deg,#0b1026,#1b2350 58%,#0d1130); }
+  .fx-love-star::after { content:""; left:auto; bottom:auto; top:-40px; right:-30px; width:120px; height:120px; border-radius:50%; background:radial-gradient(circle,rgba(255,236,210,.9) 0%,rgba(255,236,210,.25) 42%,transparent 70%); opacity:.5; }
+  /* 表白-心跳：心电图扫描线（贴题材） */
+  .fx-love-heartbeat .sep { width:236px; height:30px; background:transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='30'%3E%3Cpolyline points='0,15 18,15 26,15 32,4 38,26 44,10 50,15 120,15' fill='none' stroke='%23e0407c' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") repeat-x left center; animation:fx-ecg 1.4s linear infinite; }
+
+  /* 毕业-鎏金纪念志：海大暗线——底部海浪纹缓缓流过 */
+  .fx-grad-chronicle { --bg:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='54' viewBox='0 0 220 54'%3E%3Cpath d='M0 27 Q27 12 55 27 T110 27 T165 27 T220 27' fill='none' stroke='%232c5f8a' stroke-opacity='.3' stroke-width='2'/%3E%3Cpath d='M0 41 Q27 28 55 41 T110 41 T165 41 T220 41' fill='none' stroke='%232c5f8a' stroke-opacity='.16' stroke-width='2'/%3E%3C/svg%3E") left bottom/220px 54px repeat-x, linear-gradient(#f4efe3,#efe7d3); }
+  /* 毕业-水墨：墨韵更沉 */
+  .fx-grad-inkseal { --bg:radial-gradient(ellipse at 82% 92%, rgba(44,38,29,.12), transparent 46%), radial-gradient(ellipse at 10% 10%, rgba(44,38,29,.09), transparent 40%), #f6f2e8; }
+  /* 毕业-同学录：方格稿纸 */
+  .fx-grad-yearbook { --bg:repeating-linear-gradient(0deg, rgba(61,50,41,.055) 0 1px, transparent 1px 26px), repeating-linear-gradient(90deg, rgba(61,50,41,.055) 0 1px, transparent 1px 26px), #fdfaf3; }
+
+  /* 社团-霓虹：合成波网格地平线（透视滚动） */
+  .fx-club-neon { --bg:linear-gradient(180deg,#0b0a1f 0%,#2b1b54 58%,#140f2b 100%); }
+  .fx-club-neon::after { content:""; position:absolute; z-index:-1; left:-24%; right:-24%; bottom:-26px; height:40%; transform:perspective(320px) rotateX(58deg); transform-origin:50% 100%; background-image:repeating-linear-gradient(90deg, rgba(0,240,255,.4) 0 2px, transparent 2px 48px), repeating-linear-gradient(0deg, rgba(255,61,220,.4) 0 2px, transparent 2px 34px); animation:fx-gridmove 1.5s linear infinite; }
+  /* 社团-波普：放射线缓转（眼睛会跟着转） */
+  .fx-club-pop::before { content:""; position:absolute; z-index:-1; inset:0; background:repeating-conic-gradient(from 0deg at 50% 20%, rgba(22,22,22,.07) 0 11deg, transparent 11deg 23deg); animation:fx-rot 26s linear infinite; }
+
+  /* 出物-市集：牛皮纸 + 缝线边 */
+  .fx-flea-market { --bg:#e9d6b2; box-shadow:inset 0 0 0 2px rgba(61,50,41,.45), inset 0 0 0 7px #e9d6b2, inset 0 0 0 8px rgba(61,50,41,.3); }
+  .fx-flea-market .row { border-style:dashed; }
+  /* 出物-急售：报纸网点加重 + 红色价签腰封 */
+  .fx-flea-poster .row { background:#fffdf5; }
+
+  /* 游戏-复古：CRT 暗角 */
+  .fx-game-retro { box-shadow:inset 0 0 64px rgba(0,0,0,.6); }
+  /* 游戏-电竞：竞技场地面网格（品红暗纹） */
+  .fx-game-esports { --bg:linear-gradient(180deg,#101426 0%,#1c1440 60%,#0d0a24 100%); }
+  .fx-game-esports::after { content:""; position:absolute; z-index:-1; left:-20%; right:-20%; bottom:-24px; height:34%; transform:perspective(300px) rotateX(56deg); transform-origin:50% 100%; background-image:repeating-linear-gradient(90deg, rgba(255,61,220,.28) 0 2px, transparent 2px 44px), repeating-linear-gradient(0deg, rgba(0,240,255,.25) 0 2px, transparent 2px 36px); animation:fx-gridmove 1.8s linear infinite; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .display-stage .nfc-card { animation:none; }
+  }
+
   .display-stage { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px 14px; }
   .display-card-wrap { width: 100%; max-width: 380px; border-radius: 22px; overflow: hidden; box-shadow: 0 12px 46px rgba(15,25,50,.22); }
   .err-box { background: #fff; border-radius: 14px; padding: 30px 22px; text-align: center; max-width: 380px; }
@@ -431,6 +483,8 @@
   /* ================= 名片渲染（预览/展示共用） ================= */
   function cardShell(themeCls) {
     var c = el('div', 'nfc-card ' + themeCls);
+    var g = el('div', 'grain');            /* v4 工艺层：全卡颗粒质感 */
+    c.appendChild(g);
     var brand = el('div', 'brand');
     brand.appendChild(document.createTextNode('内容由卡片主人自定义 · 碰一碰 NFC '));
     var mk = el('a', null, '我也要做一张');
@@ -500,6 +554,7 @@
       c.appendChild(el('div', 'name', '致 ' + (d.to || '你')));
       if (d.msg) c.appendChild(el('div', 'quote', d.msg));
       c.appendChild(el('div', 'sig', '—— ' + (d.fm || '匿名')));
+      c.appendChild(el('div', 'sep'));   /* 心电图扫描线（fx-love-heartbeat 工艺层宿主） */
       if (d.song) { try { addLink(c, '🎵 听这首歌', cleanUrl(d.song)); } catch (e) {} }
       return finish(c);
     },
