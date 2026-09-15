@@ -182,6 +182,71 @@
   .s-y2k .link-btn { background:linear-gradient(90deg,#00f0ff,#ff3ddc); color:#001318; box-shadow:0 0 18px rgba(0,240,255,.35); }
   .s-y2k .avatar { box-shadow:0 0 14px rgba(255,61,220,.5); }
 
+  /* ---------- 动效层：用途专属 flair（v3，每风格一个 signature 动效） ---------- */
+  @keyframes fx-rise { 0%{transform:translateY(0);opacity:0} 12%{opacity:.9} 100%{transform:translateY(-240px);opacity:0} }
+  @keyframes fx-fall { 0%{transform:translateY(-30px) rotate(-8deg);opacity:0} 12%{opacity:.85} 100%{transform:translateY(300px) rotate(28deg);opacity:0} }
+  @keyframes fx-beat { 0%,100%{transform:scale(1)} 14%{transform:scale(1.13)} 28%{transform:scale(1)} 42%{transform:scale(1.09)} 56%{transform:scale(1)} }
+  @keyframes fx-twinkle { 0%,100%{opacity:.15} 50%{opacity:1} }
+  @keyframes fx-drift { 0%{transform:translate(0,0) scale(1)} 50%{transform:translate(26px,-18px) scale(1.12)} 100%{transform:translate(0,0) scale(1)} }
+  @keyframes fx-shimmer { 0%{transform:translateX(-130%) skewX(-18deg)} 100%{transform:translateX(280%) skewX(-18deg)} }
+  @keyframes fx-stamp { 0%{transform:scale(2.4) rotate(-16deg);opacity:0} 55%{transform:scale(.9) rotate(-7deg);opacity:1} 100%{transform:scale(1) rotate(-8deg);opacity:.9} }
+  @keyframes fx-flicker { 0%,6.5%,8.5%,100%{opacity:1} 7.5%{opacity:.35} 31%,33.5%{opacity:1} 32%{opacity:.45} 68%,70.5%{opacity:1} 69%{opacity:.3} }
+  @keyframes fx-blink { 0%,49%{opacity:1} 50%,100%{opacity:0} }
+  @keyframes fx-eqmarch { 0%{background-position-x:0} 100%{background-position-x:56px} }
+  @keyframes fx-swing { 0%,100%{transform:rotate(9deg)} 50%{transform:rotate(-9deg)} }
+  @keyframes fx-hue { 0%{filter:hue-rotate(0deg)} 100%{filter:hue-rotate(360deg)} }
+  @keyframes fx-starfall { 0%{background-position:0 0, 0 0} 100%{background-position:-30px 340px, -80px 600px} }
+  @keyframes fx-glowc { 0%,100%{box-shadow:0 0 10px rgba(0,240,255,.3)} 50%{box-shadow:0 0 26px rgba(255,61,220,.55)} }
+  @keyframes fx-goldglow { 0%,100%{box-shadow:0 0 6px rgba(185,138,62,.35)} 50%{box-shadow:0 0 18px rgba(185,138,62,.8)} }
+  @keyframes fx-pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+  @keyframes fx-slidein { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+
+  .fx-card-aurora::before { content:""; position:absolute; z-index:-1; top:-70px; left:-60px; width:250px; height:250px; border-radius:50%; background:conic-gradient(from 0deg,#93c5fd,#a78bfa,#67e8f9,#93c5fd); filter:blur(34px); opacity:.55; animation:fx-drift 8s ease-in-out infinite; }
+  .fx-card-aurora::after { content:""; position:absolute; top:0; bottom:0; left:0; width:34%; background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent); animation:fx-shimmer 3.6s ease-in-out infinite; }
+  .fx-card-magazine .avatar { border-radius:8px; animation:fx-goldglow 3.2s ease-in-out infinite; }
+  .fx-card-magazine .name, .fx-card-magazine .rows .row { animation:fx-slidein .7s both; }
+  .fx-card-magazine .rows .row:nth-child(2) { animation-delay:.12s; }
+  .fx-card-magazine .rows .row:nth-child(3) { animation-delay:.24s; }
+  .fx-card-glassflow::before { animation:fx-drift 7s ease-in-out infinite; }
+  .fx-card-glassflow::after { animation:fx-drift 9.5s ease-in-out infinite reverse; }
+
+  .fx-love-script::before { content:"❤"; position:absolute; left:13%; bottom:30px; top:auto; right:auto; font-size:13px; color:#e8734a; opacity:0; animation:fx-rise 4.5s linear infinite; }
+  .fx-love-script::after { content:"💕"; position:absolute; left:81%; bottom:30px; font-size:10px; opacity:0; animation:fx-rise 5.5s linear infinite 2.2s; }
+  .fx-love-star::before { content:""; position:absolute; z-index:-1; inset:0; background-image:radial-gradient(1.5px 1.5px at 20% 30%, #fff 50%, transparent 51%), radial-gradient(1px 1px at 70% 12%, #fff 50%, transparent 51%), radial-gradient(1.5px 1.5px at 42% 68%, #ffd9e4 50%, transparent 51%), radial-gradient(1px 1px at 86% 55%, #fff 50%, transparent 51%), radial-gradient(2px 2px at 12% 82%, #c4b5fd 50%, transparent 51%), radial-gradient(1px 1px at 55% 42%, #fff 50%, transparent 51%); animation:fx-twinkle 2.6s ease-in-out infinite; }
+  .fx-love-heartbeat::after { content:"❤"; position:absolute; z-index:-1; top:22%; left:50%; margin-left:-84px; font-size:168px; line-height:1; color:#ff5d73; opacity:.16; animation:fx-beat 1.5s ease-in-out infinite; }
+
+  .fx-grad-chronicle .avatar { border-radius:8px; animation:fx-goldglow 3.2s ease-in-out infinite; }
+  .fx-grad-chronicle .name { animation:fx-slidein .8s both; }
+  .fx-grad-inkseal::after { animation:fx-stamp .9s .35s cubic-bezier(.2,.8,.3,1.25) both; }
+  .fx-grad-yearbook::before { content:"✂ ★ ✐"; left:9%; top:-16px; right:auto; position:absolute; font-size:13px; color:rgba(61,50,41,.7); animation:fx-fall 5s linear infinite; }
+  .fx-grad-yearbook::after { content:"♥ ♫ ✿"; right:9%; top:-16px; position:absolute; font-size:11px; color:rgba(61,50,41,.6); animation:fx-fall 6.5s linear infinite 1.6s; }
+
+  .fx-club-neon .name { animation:fx-flicker 6s linear infinite; }
+  .fx-club-neon .sep { width:132px; height:12px; background:repeating-linear-gradient(90deg,var(--ac) 0 5px,transparent 5px 14px); animation:fx-eqmarch 1s steps(4) infinite; opacity:.9; }
+  .fx-club-pop::before { animation:fx-eqmarch 4s linear infinite; }
+  .fx-club-pop::after { content:"加入我们"; position:absolute; top:12px; right:12px; width:66px; height:66px; border-radius:50%; background:#ff5d73; color:#fff; font-size:13px; font-weight:900; display:flex; align-items:center; justify-content:center; border:2px solid #161616; box-shadow:3px 3px 0 #161616; animation:fx-pulse 1.8s ease-in-out infinite; }
+  .fx-club-minimal .rows .row { animation:fx-slidein .5s both; }
+  .fx-club-minimal .rows .row:nth-child(1) { animation-delay:.05s; }
+  .fx-club-minimal .rows .row:nth-child(2) { animation-delay:.15s; }
+  .fx-club-minimal .rows .row:nth-child(3) { animation-delay:.25s; }
+
+  .fx-flea-market::after { content:"🏷️"; position:absolute; top:10px; left:14px; font-size:24px; transform-origin:50% -8px; animation:fx-swing 2.4s ease-in-out infinite; filter:drop-shadow(1px 2px 0 rgba(61,50,41,.3)); }
+  .fx-flea-poster::after { content:"急售"; position:absolute; top:12px; right:12px; width:52px; height:52px; border-radius:50%; background:#e8734a; color:#fff; font-size:15px; font-weight:900; display:flex; align-items:center; justify-content:center; border:2px solid #161616; animation:fx-blink 1.1s steps(1) infinite; }
+  .fx-flea-poster .price-line { animation:fx-beat 1.4s ease-in-out infinite; }
+  .fx-flea-clean .rows .row { animation:fx-slidein .5s both; }
+  .fx-flea-clean .rows .row:nth-child(1) { animation-delay:.05s; }
+  .fx-flea-clean .rows .row:nth-child(2) { animation-delay:.15s; }
+
+  .fx-game-retro .name::after { content:"▮"; margin-left:5px; color:var(--ac); animation:fx-blink 1s steps(1) infinite; }
+  .fx-game-retro .sep { animation:fx-eqmarch 1s steps(4) infinite; }
+  .fx-game-esports .name { animation:fx-hue 4s linear infinite; }
+  .fx-game-esports .avatar { animation:fx-glowc 2.4s ease-in-out infinite; }
+  .fx-game-starfield::before { content:""; position:absolute; z-index:-1; inset:0; background-image:radial-gradient(1.5px 1.5px at 15% 25%, #fff 50%, transparent 51%), radial-gradient(1px 1px at 60% 10%, #fff 50%, transparent 51%), radial-gradient(2px 2px at 45% 65%, #9ad7ff 50%, transparent 51%), radial-gradient(1px 1px at 88% 40%, #fff 50%, transparent 51%), radial-gradient(1.5px 1.5px at 75% 85%, #c4b5fd 50%, transparent 51%); animation:fx-starfall 9s linear infinite; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nfc-card, .nfc-card *, .nfc-card::before, .nfc-card::after { animation: none !important; }
+  }
+
   .display-stage { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px 14px; }
   .display-card-wrap { width: 100%; max-width: 380px; border-radius: 22px; overflow: hidden; box-shadow: 0 12px 46px rgba(15,25,50,.22); }
   .err-box { background: #fff; border-radius: 14px; padding: 30px 22px; text-align: center; max-width: 380px; }
@@ -256,7 +321,17 @@
     flea: ['t-lemon', 't-white', 't-night'], game: ['t-purple', 't-star', 't-night']
   };
   var STYLE_IDS = { flat: 1, editorial: 1, glass: 1, pixel: 1, ink: 1, doodle: 1, pop: 1, y2k: 1 };
+  /* 用途专属风格 → 底色引擎（flair 层再加动效与题材符号） */
+  var STYLE_FLAIR = {
+    'card-aurora': 'flat', 'card-magazine': 'editorial', 'card-glassflow': 'glass',
+    'love-script': 'doodle', 'love-starlight': 'glass', 'love-heartbeat': 'pop',
+    'grad-chronicle': 'editorial', 'grad-inkseal': 'ink', 'grad-yearbook': 'doodle',
+    'club-neon': 'y2k', 'club-pop': 'pop', 'club-minimal': 'flat',
+    'flea-market': 'doodle', 'flea-poster': 'pop', 'flea-clean': 'flat',
+    'game-retro': 'pixel', 'game-esports': 'y2k', 'game-starfield': 'glass'
+  };
   function cardCls(d) {
+    if (d.sty && STYLE_FLAIR[d.sty]) return 's-' + STYLE_FLAIR[d.sty] + ' fx-' + d.sty;
     if (d.sty && STYLE_IDS[d.sty]) return 's-' + d.sty;
     var k = RENDER[d.k] ? d.k : 'card';
     var arr = LEGACY_TH[k] || LEGACY_TH.card;
@@ -266,9 +341,9 @@
   var TPL = {
     card: {
       nm: '电子名片', ic: '💼', de: '社交 · 求职 · 递名片',
-      st: [ST('flat', '清爽极简', '白底细线 · 商务通用', 'linear-gradient(135deg,#f7f8fa,#dfe7f2)'),
-           ST('editorial', '杂志质感', '衬线刊头 · 老牌大刊味', 'linear-gradient(135deg,#f3efe6,#cfc4ae)'),
-           ST('glass', '液态玻璃', '光斑毛玻璃 · 2026 风', 'linear-gradient(135deg,#7a4fb3,#3e7bd6)')],
+      st: [ST('card-aurora', '极光名片', '流光掠过 · 商务也惊艳', 'linear-gradient(135deg,#93c5fd,#a78bfa)'),
+           ST('card-magazine', '鎏金杂志志', '金辉徽章 · 大刊排版', 'linear-gradient(135deg,#f3efe6,#b98a3e)'),
+           ST('card-glassflow', '幻彩玻璃', '光斑流动 · 通透高级', 'linear-gradient(135deg,#7a4fb3,#3e7bd6)')],
       fd: [
         { id: 'n', lb: '名字（必填）', req: 1, max: 24, ph: '显示在卡片上的名字' },
         { id: 't', lb: '身份标签（选填）', max: 30, ph: '如：海大机械 28 级 / 摄影爱好者' },
@@ -283,9 +358,9 @@
     },
     love: {
       nm: '表白心意', ic: '💌', de: '把话写进卡里',
-      st: [ST('doodle', '手账情书', '歪歪扭扭 · 手写感', 'linear-gradient(135deg,#fdf8ee,#f7e4cf)'),
-           ST('glass', '星河玻璃', '深空光斑 · 告白夜', 'linear-gradient(135deg,#372a68,#5ad1ff)'),
-           ST('pop', '波普心动', '甜系大字 · 敢于直球', 'linear-gradient(135deg,#ffd93d,#ff5d73)')],
+      st: [ST('love-script', '手账情书', '楷体手写 · 心意上浮', 'linear-gradient(135deg,#fdf8ee,#f7e4cf)'),
+           ST('love-starlight', '星河告白', '满天星 · 替你眨眼', 'linear-gradient(135deg,#372a68,#5ad1ff)'),
+           ST('love-heartbeat', '心跳波普', '巨型心跳 · 直球告白', 'linear-gradient(135deg,#ffd93d,#ff5d73)')],
       fd: [
         { id: 'to', lb: '致（TA 的名字/昵称）', req: 1, max: 20, ph: '如：小雨', half: 1 },
         { id: 'fm', lb: '署名（留空=匿名）', max: 20, ph: '如：一个欣赏你的人', half: 1 },
@@ -295,9 +370,9 @@
     },
     grad: {
       nm: '毕业纪念', ic: '🎓', de: '留给母校和同学',
-      st: [ST('editorial', '学院纪念志', '衬线刊头 · 毕业典礼', 'linear-gradient(135deg,#f3efe6,#cfc4ae)'),
-           ST('ink', '水墨留名', '宣纸印章 · 中式纪念', 'linear-gradient(135deg,#f6f2e8,#cfc6b4)'),
-           ST('doodle', '同学录', '涂鸦手写 · 青春涂满', 'linear-gradient(135deg,#fdf8ee,#f7e4cf)')],
+      st: [ST('grad-chronicle', '鎏金纪念志', '金徽章 · 典礼感', 'linear-gradient(135deg,#f3efe6,#b98a3e)'),
+           ST('grad-inkseal', '水墨落印', '印章砸下 · 中式纪念', 'linear-gradient(135deg,#f6f2e8,#cfc6b4)'),
+           ST('grad-yearbook', '同学录', '纸屑飘落 · 青春散场', 'linear-gradient(135deg,#fdf8ee,#f7e4cf)')],
       fd: [
         { id: 'sc', lb: '学校 / 学院', req: 1, max: 30, ph: '如：广东海洋大学 滨海农业学院', half: 1 },
         { id: 'yr', lb: '届别', max: 10, ph: '如：2027 届', half: 1 },
@@ -307,9 +382,9 @@
     },
     club: {
       nm: '社团招新', ic: '🚩', de: '摆摊 · 拉新 · 传单',
-      st: [ST('y2k', '电音霓虹', '发光边框 · 夜场气质', 'linear-gradient(135deg,#302b63,#00f0ff)'),
-           ST('pop', '波普海报', '硬朗大字 · 纳新炸场', 'linear-gradient(135deg,#ffd93d,#ff5d73)'),
-           ST('flat', '简约直给', '一屏说清 · 效率招新', 'linear-gradient(135deg,#f7f8fa,#dfe7f2)')],
+      st: [ST('club-neon', '霓虹招牌', '灯牌闪烁 · 均衡器', 'linear-gradient(135deg,#302b63,#00f0ff)'),
+           ST('club-pop', '波普炸场', '徽章脉冲 · 炸裂吸睛', 'linear-gradient(135deg,#ffd93d,#ff5d73)'),
+           ST('club-minimal', '利落直给', '逐行滑入 · 效率招新', 'linear-gradient(135deg,#f7f8fa,#dfe7f2)')],
       fd: [
         { id: 'n', lb: '社团名（必填）', req: 1, max: 24, ph: '如：海大机器人协会' },
         { id: 'sl', lb: '一句话口号', max: 30, ph: '如：把想法焊进现实', half: 1 },
@@ -321,9 +396,9 @@
     },
     flea: {
       nm: '二手出物', ic: '🏷️', de: '毕业甩卖 · 好物转手',
-      st: [ST('doodle', '市集手写牌', '像价格牌 · 亲切', 'linear-gradient(135deg,#fdf8ee,#f7e4cf)'),
-           ST('pop', '甩卖大字报', '全场最大 · 一眼成交', 'linear-gradient(135deg,#ffd93d,#ff5d73)'),
-           ST('flat', '极简清单', '干净列表 · 信息优先', 'linear-gradient(135deg,#f7f8fa,#dfe7f2)')],
+      st: [ST('flea-market', '市集摇摆牌', '价签摇晃 · 跳蚤市集', 'linear-gradient(135deg,#fdf8ee,#f7e4cf)'),
+           ST('flea-poster', '急售大字报', '闪字急售 · 先睹为快', 'linear-gradient(135deg,#ffd93d,#ff5d73)'),
+           ST('flea-clean', '极简清单', '干净列表 · 信息优先', 'linear-gradient(135deg,#f7f8fa,#dfe7f2)')],
       fd: [
         { id: 'it', lb: '物品名（必填）', req: 1, max: 24, ph: '如：Kindle Paperwhite 5' },
         { id: 'pr', lb: '价格（元）', req: 1, max: 10, ph: '如：299 或 299 可刀', half: 1 },
@@ -336,9 +411,9 @@
     },
     game: {
       nm: '游戏开黑', ic: '🎮', de: '室友 · 网友 · 找搭子',
-      st: [ST('pixel', '8-bit 掌机', '扫描线 · 红白机', 'linear-gradient(135deg,#0e1216,#1b232c)'),
-           ST('y2k', '电竞霓虹', '赛博光效 · 战绩展示', 'linear-gradient(135deg,#302b63,#00f0ff)'),
-           ST('glass', '星战玻璃', '深空玻璃 · 开黑黑话', 'linear-gradient(135deg,#372a68,#5ad1ff)')],
+      st: [ST('game-retro', '8-bit 掌机', '光标闪烁 · 扫描线', 'linear-gradient(135deg,#0e1216,#31463a)'),
+           ST('game-esports', '电竞 RGB', '名字流光转色', 'linear-gradient(135deg,#302b63,#00f0ff)'),
+           ST('game-starfield', '星域玻璃', '星海穿行 · 深空开黑', 'linear-gradient(135deg,#372a68,#5ad1ff)')],
       fd: [
         { id: 'nk', lb: '游戏昵称（必填）', req: 1, max: 20, ph: '如：深夜修狗' },
         { id: 'rk', lb: '段位 / 称号（选填）', max: 20, ph: '如：王者50星 / 大师', half: 1 },
@@ -611,14 +686,23 @@
       s.appendChild(p);
       return s;
     }
+    tbox.appendChild(tstep('0', '先确认手机有 NFC，并把它打开',
+      '<b>NFC 是什么？</b>手机和卡片之间的"隔空快递"——贴近 2 厘米内，手机隔空给卡供电并交换数据（卡没电池，电全来自手机）。<br>' +
+      '<b>安卓 3 秒自查</b>：下拉通知栏找「NFC」开关；找不到就进 设置→顶部搜索"NFC"。有 = 支持，打开即可。<br>' +
+      '<b>iPhone</b>：7 代及之后全部支持，无需任何开关，写卡时解锁就行。<br>' +
+      '<b>手机真没有 NFC？</b>借同学的手机写一次就够——内容存在卡里，写完之后谁的手机都能碰开。'));
     tbox.appendChild(tstep('1', '下载免费的 NFC Tools APP',
       '安卓手机：<a href="https://apps.wakdev.com/nfctools/releases/nfctools_se-latest.apk" style="color:#2563eb;text-decoration:underline;"><b>点这里下载官方直装包</b></a>（wakdev 官网托管，无需应用商店，永远最新版，约 20MB）。' +
-      'iPhone：去 <a href="https://apps.apple.com/cn/app/nfc-tools/id1252962749" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:underline;">App Store 搜 NFC Tools</a>。APP 版权归 wakdev 所有。'));
+      'iPhone：去 <a href="https://apps.apple.com/cn/app/nfc-tools/id1252962749" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:underline;">App Store 搜 NFC Tools</a>。APP 版权归 wakdev 所有。<br>' +
+      '<span class="hint">免费版完全够用：读写网址 / 文本 / 联系人 / WiFi 全支持。Pro 版多的是批量写入、密码锁、任务自动化这类高级功能——本教程一步都用不到，不用花钱升级。</span>'));
     tbox.appendChild(tstep('2', '添加「URL / URI」记录并粘贴链接',
       '打开 APP → 底部「写」→「添加记录」→ 在列表里选 <b>URL / URI</b>（下图第二行）→ 把本页第 3 步复制的链接粘贴进去 → 确定。<br>' +
+      '<span class="hint">为什么不是"个性化 URI"？——普通 URL 记录是所有手机都原生认识的格式，碰卡必开；"个性化 URI"是用来写特殊协议的，我们用不上。</span><br>' +
       '<img src="guide-url.jpg" alt="URL / URI 记录位置" style="max-width:62%;border-radius:10px;border:1px solid #e3e8ef;margin-top:6px;display:block;">'));
     tbox.appendChild(tstep('3', '写入卡片',
-      '回到「写」页面 → 点「写入」→ 手机背面贴住卡片中间，慢慢小范围移动——<b>卡上的灯亮 = 正在写入</b>，出现成功提示就完成了。完成后碰一下卡验证。'));
+      '回到「写」页面 → 点「写入」→ 手机背面贴住卡片中间，慢慢小范围移动——<b>卡上的灯亮 = 正在写入</b>，出现成功提示就完成了。完成后碰一下卡验证。' +
+      '<video src="write-demo.mp4" controls playsinline preload="metadata" poster="write-demo-poster.jpg" style="width:100%;max-width:430px;border-radius:10px;margin-top:8px;display:block;border:1px solid #e3e8ef;"></video>' +
+      '<span class="hint">↑ 真机实操演示视频（35 秒）</span>'));
     var seeAll = el('div'); seeAll.style.marginTop = '10px';
     var sa = el('a', null, '📷 查看APP完整功能菜单长图');
     sa.href = 'guide-app-menu.jpg'; sa.target = '_blank'; sa.rel = 'noopener';
