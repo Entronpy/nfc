@@ -753,10 +753,10 @@
       '安卓手机：<a href="https://apps.wakdev.com/nfctools/releases/nfctools_se-latest.apk" style="color:#2563eb;text-decoration:underline;"><b>点这里下载官方直装包</b></a>（wakdev 官网托管，无需应用商店，永远最新版，约 20MB）。' +
       'iPhone：去 <a href="https://apps.apple.com/cn/app/nfc-tools/id1252962749" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:underline;">App Store 搜 NFC Tools</a>。APP 版权归 wakdev 所有。<br>' +
       '<span class="hint">免费版完全够用：读写网址 / 文本 / 联系人 / WiFi 全支持。Pro 版多的是批量写入、密码锁、任务自动化这类高级功能——本教程一步都用不到，不用花钱升级。</span>'));
-    tbox.appendChild(tstep('2', '添加「URL / URI」记录并粘贴链接',
-      '打开 APP → 底部「写」→「添加记录」→ 在列表里选 <b>URL / URI</b>（下图第二行）→ 把本页第 3 步复制的链接粘贴进去 → 确定。<br>' +
-      '<span class="hint">为什么不是"个性化 URI"？——普通 URL 记录是所有手机都原生认识的格式，碰卡必开；"个性化 URI"是用来写特殊协议的，我们用不上。</span><br>' +
-      '<img src="guide-url.jpg" alt="URL / URI 记录位置" style="max-width:62%;border-radius:10px;border:1px solid #e3e8ef;margin-top:6px;display:block;">'));
+    tbox.appendChild(tstep('2', '添加「个性化 URL / URI」记录并粘贴链接',
+      '打开 APP → 底部「写」→「添加记录」→ 在列表里选 <b>个性化 URL / URI</b>（下图行，链条是斜的）→ 把本页第 3 步复制的链接完整粘贴进去 → 确定。<br>' +
+      '<span class="hint">为什么选"个性化"？——它可以手动控制链接前缀、完整写入长链接不截断，实测这条路径写卡最稳（两种都能写网址，照教程走不会错）。</span><br>' +
+      '<img src="guide-url.jpg" alt="个性化 URL / URI 记录位置" style="max-width:62%;border-radius:10px;border:1px solid #e3e8ef;margin-top:6px;display:block;">'));
     tbox.appendChild(tstep('3', '写入卡片',
       '回到「写」页面 → 点「写入」→ 手机背面贴住卡片中间，慢慢小范围移动——<b>卡上的灯亮 = 正在写入</b>，出现成功提示就完成了。完成后碰一下卡验证。' +
       '<video src="write-demo.mp4" controls playsinline preload="metadata" poster="write-demo-poster.jpg" style="width:100%;max-width:430px;border-radius:10px;margin-top:8px;display:block;border:1px solid #e3e8ef;"></video>' +
