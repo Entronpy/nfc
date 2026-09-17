@@ -35,16 +35,11 @@
   .tpl-opt .ti { font-size: 26px; line-height: 1.15; }
   .tpl-opt .tn { font-size: 13.5px; font-weight: 600; margin-top: 3px; }
   .tpl-opt .td { font-size: 11.5px; color: #8892a0; margin-top: 1px; }
-  /* 转链热位：覆盖社媒主页模板位（2026-09-16） */
-  .tpl-hot { background: linear-gradient(135deg, #fff1f1, #ffe0e0); border-color: #ff2442; }
-  .tpl-hot .td { color: #c2233f; font-weight: 600; }
-  .tpl-hot { position: relative; }
-  .tpl-hot::after { content: "🔥 常用"; position: absolute; top: 4px; right: 6px; font-size: 10px; color: #fff; background: #ff2442; border-radius: 8px; padding: 0 5px; }
   .hot-banner {
     display: flex; align-items: center; justify-content: center; gap: 8px;
     background: linear-gradient(135deg, #ff2442, #7c3aed); color: #fff;
     font-weight: 700; font-size: 14.5px; padding: 13px; border-radius: 12px;
-    cursor: pointer; margin-top: 14px; box-shadow: 0 4px 14px rgba(255,36,66,.28);
+    cursor: pointer; margin: 14px 0 4px; box-shadow: 0 4px 14px rgba(255,36,66,.28);
     transition: filter .15s;
   }
   .hot-banner:hover { filter: brightness(1.07); }
@@ -712,14 +707,15 @@
     /* ---- 0 选模板 ---- */
     var p0 = el('div', 'panel');
     p0.appendChild(secTitle('0', '选个模板'));
+    /* 🔥 社媒转链独立块（与六模板分开，2026-09-16） */
+    var banner = el('div', 'hot-banner');
+    banner.appendChild(el('span', null, '🔗 社媒转链：抖音 / 小红书链接粘贴即转 NFC 链接'));
+    banner.onclick = function () { window.open('link.html', '_blank'); };
+    var bhint = el('div'); bhint.style.cssText = 'text-align:center;font-size:11px;color:#a08bb0;margin:4px 0 10px;';
+    bhint.textContent = '大客户专用 · 单独工具页，与下方卡片模板无关';
+    p0.appendChild(banner);
+    p0.appendChild(bhint);
     var tg = el('div', 'tpl-grid');
-    /* 🔥 社媒转链占 C 位（覆盖原社媒主页模板位，2026-09-16 用户指令） */
-    var hot = el('div', 'tpl-opt tpl-hot');
-    hot.appendChild(el('div', 'ti', '🔗'));
-    hot.appendChild(el('div', 'tn', '社媒转链'));
-    hot.appendChild(el('div', 'td', '抖音/小红书粘贴即转'));
-    hot.onclick = function () { window.open('link.html', '_blank'); };
-    tg.appendChild(hot);
     TPL_ORDER.forEach(function (k) {
       var t = TPL[k];
       var o = el('div', 'tpl-opt' + (k === 'card' ? ' on' : ''));
@@ -736,11 +732,6 @@
       tg.appendChild(o);
     });
     p0.appendChild(tg);
-    /* 顶部大横幅：第二入口，一眼可见 */
-    var banner = el('div', 'hot-banner');
-    banner.appendChild(el('span', null, '🔥 有抖音 / 小红书链接要刷卡？点这里一键转链 →'));
-    banner.onclick = function () { window.open('link.html', '_blank'); };
-    p0.appendChild(banner);
     left.appendChild(p0);
 
     /* ---- 1 填信息（按模板动态） ---- */
@@ -1013,6 +1004,13 @@
       var len = url.length;
       $('gen-url').value = url;
       $('result').style.display = 'block';
+      /* 自动存入转接页（本地列表，最多保留 20 条） */
+      try {
+        var list = JSON.parse(localStorage.getItem('nfc-transfer') || '[]');
+        list.unshift({ t: Date.now(), url: url, label: (d.n || d.to || d.sc || d.nk || d.it || '链接') });
+        if (list.length > 20) list.length = 20;
+        localStorage.setItem('nfc-transfer', JSON.stringify(list));
+      } catch (e) {}
       var pct = Math.min(100, Math.round(len / NFC_LIMIT * 100));
       $('meter-fill').style.width = pct + '%';
       $('meter-fill').style.background = len > NFC_LIMIT ? '#ef4444' : (len > NFC_WARN ? '#f59e0b' : '#22c55e');
@@ -1029,6 +1027,10 @@
         qa.appendChild(el('p', null, '二维码生成失败，不影响使用，直接复制链接即可'));
       }
       $('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      var sh = $('save-hint'); if (sh) sh.remove();
+      var shn = el('div', 'hint', '✅ 已自动存入「转接页」，随时可回看这条链接和它的二维码');
+      shn.id = 'save-hint';
+      $('result').appendChild(shn);
     };
     $('copy-btn').onclick = function () {
       var u = $('gen-url').value;
