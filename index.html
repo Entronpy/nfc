@@ -562,7 +562,7 @@
         { id: 'to', lb: '致（TA 的名字/昵称）', req: 1, max: 20, ph: '如：小雨', half: 1 },
         { id: 'fm', lb: '署名（留空=匿名）', max: 20, ph: '如：一个欣赏你的人', half: 1 },
         { id: 'msg', lb: '想说的话', type: 'area', req: 1, max: 260, ph: '碰卡的人都会看到这段话，写点真心话' },
-        { id: 'song', lb: '歌曲链接（网易云，选填）', max: 300, ph: '分享复制整段粘进来就行，自动识别', tip: '带 id 的链接 → 卡内直接播放（免费歌）；短链或会员歌 → 点击跳转网易云播放' },
+        { id: 'song', lb: '歌曲链接（网易云，选填）', max: 300, ph: '分享复制整段粘进来就行，自动识别', tip: '本地管理页会自动解析短链为可播放链接；会员歌曲自动转为跳转打开' },
         { id: 'sn', lb: '歌名（选填）', max: 30, ph: '如：晴天 - 周杰伦', tip: '显示在小唱片旁边' }
       ]
     },
@@ -1263,6 +1263,24 @@
       var r = collect();
       sc.appendChild(renderCard(r.d));
     }
+    /* 网易云短链自动解析（仅本地管理页有解析服务；线上 GitHub 页自动跳过） */
+    function maybeResolveSong(d, done) {
+      var song = d.song || '';
+      if (!/163cn\.tv/i.test(song)) { done(false); return; }
+      fetch('/api/resolve-url?u=' + encodeURIComponent(song))
+        .then(function (res) { return res.ok ? res.json() : null; })
+        .then(function (j) {
+          var m = (j && j.ok && j.url) ? j.url.match(/[?&]id=(\d+)/) : null;
+          if (m) {
+            d.song = 'https://music.163.com/song?id=' + m[1];
+            var inp = document.querySelector('[data-fid="song"]');
+            if (inp && inp.value.indexOf('163cn.tv') >= 0) inp.value = d.song;
+            toast('已自动解析短链 → 卡内可直接播放');
+            done(true);
+          } else done(false);
+        })
+        .catch(function () { done(false); });
+    }
     go.onclick = function () {
       var agreeBox = document.getElementById('agree-tos');
       if (!agreeBox.checked) { toast('请先勾选同意《免责声明与用户权益承诺书》'); agreeBox.focus(); return; }
@@ -1270,13 +1288,16 @@
       try { sessionStorage.setItem('nfc-tos', 'v2'); } catch (e) {}
       var r = collect();
       if (r.missing) { toast('还有必填项：' + r.missing); return; }
-      var url = CANON + '#d=' + b64urlEncode(JSON.stringify(r.d));
+      maybeResolveSong(r.d, function () { buildResult(r.d); });
+    };
+    function buildResult(d) {
+      var url = CANON + '#d=' + b64urlEncode(JSON.stringify(d));
       var len = url.length;
       $('gen-url').value = url;
       $('result').style.display = 'block';
-      /* 自动存入转接页（本地列表，最多保留 20 条） */
+      /* 自动存入转接页（本地列表，最多保留 200 条） */
       try {
-        var dd = r.d;
+        var dd = d;
         var list = JSON.parse(localStorage.getItem('nfc-transfer') || '[]');
         list.unshift({ t: Date.now(), url: url, label: (dd.n || dd.to || dd.sc || dd.nk || dd.it || '链接') });
         if (list.length > 200) list.length = 200;
