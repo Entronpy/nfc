@@ -1215,7 +1215,7 @@
         var dd = r.d;
         var list = JSON.parse(localStorage.getItem('nfc-transfer') || '[]');
         list.unshift({ t: Date.now(), url: url, label: (dd.n || dd.to || dd.sc || dd.nk || dd.it || '链接') });
-        if (list.length > 20) list.length = 20;
+        if (list.length > 200) list.length = 200;
         localStorage.setItem('nfc-transfer', JSON.stringify(list));
       } catch (e) {}
       var pct = Math.min(100, Math.round(len / NFC_LIMIT * 100));
