@@ -370,7 +370,10 @@
   @keyframes fx-vinyl { to { transform: rotate(360deg); } }
   /* 浮空手写引导气泡 + 弹簧箭头（v4.4） */
   .vinyl-hint { position: absolute; left: 14px; bottom: 72px; width: max-content; max-width: 220px; text-align: center; pointer-events: none; z-index: 2; font-family: "Kaiti SC", KaiTi, STKaiti, "Yuanti SC", cursive; animation: vh-bob 2.6s ease-in-out infinite; }
-  .vh-bubble { display: inline-block; background: rgba(15,20,30,.8); color: #fff; font-size: 11px; line-height: 1.5; padding: 5px 10px; border-radius: 9px; backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); box-shadow: 0 2px 8px rgba(0,0,0,.25); text-align: left; }
+  .vh-bubble { display: inline-block; color: inherit; font-size: 11px; line-height: 1.5; text-align: left; text-shadow: 1px 1px 2px rgba(0,0,0,.3); }
+  .vh-bubble b { color: #e0407c; }
+  .vh-arrow { display: block; width: 30px; height: 26px; margin: -2px 0 0 26px; overflow: visible; }
+  .vh-arrow path { stroke: currentColor; }
   .vh-bubble b { color: #ffd166; }
   .vh-arrow { display: block; width: 30px; height: 26px; margin: -2px 0 0 26px; overflow: visible; }
   .vh-arrow path { stroke: #ffd166; }
