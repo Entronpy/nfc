@@ -384,6 +384,11 @@
 <script>
 (function () {
   'use strict';
+  /* 临时诊断：捕获启动期运行时错误 */
+  window.addEventListener('error', function (e) {
+    try { localStorage.setItem('nfc-err', String((e && e.message) || e) + ' @line' + (e.lineno || '?')); } catch (x) {}
+  });
+
   /* 烙印：控制台署名（试图查看/盗用源码的人会先看到这里） */
   console.log('%c© 余佳琪 · 广东海洋大学 2024级 机械设计制造及其自动化 1243班%c\n本页面为独立设计制作，「广东海洋大学 PCB 校园纪念卡」的所有权与知识产权归 余佳琪 所有。盗用必究。', 'color:#7c3aed;font-size:13px;font-weight:bold;', 'color:#7c3aed;');
   console.log('%cPCB纪念卡 所有权声明：本卡及配套页面均为 余佳琪 原创成果。', 'color:#a63226;');
@@ -810,7 +815,6 @@
 
   /* ================= 制作模式 ================= */
   function runMaker() {
-    PREVIEW_MODE = true;   /* 预览中不自动出声，避免编辑打扰；展示页照常自动播放 */
     var app = document.getElementById('app');
 
     /* 页面右上角三入口（v4.2：做进定制页本体） */
@@ -853,6 +857,7 @@
         o.classList.add('on');
         rebuildForm();
         refreshPreview();
+        saveDraftSoon();
       };
       tg.appendChild(o);
     });
@@ -899,7 +904,7 @@
     agreeWrap.style.cssText = 'display:flex;align-items:flex-start;gap:7px;margin:10px 0 2px;font-size:12.5px;color:#556;cursor:pointer;';
     var agreeBox = el('input'); agreeBox.type = 'checkbox'; agreeBox.id = 'agree-tos';
     agreeBox.style.marginTop = '2px';
-    if (localStorage.getItem('nfc-tos') === 'v2') agreeBox.checked = true;
+    if (localStorage.getItem('nfc-tos') === 'v2' || sessionStorage.getItem('nfc-tos') === 'v2') agreeBox.checked = true;
     agreeWrap.appendChild(agreeBox);
     var at = el('span');
     at.appendChild(document.createTextNode('我已阅读并同意 '));
@@ -1068,7 +1073,8 @@
         o.appendChild(dv);
         o.onclick = function () {
           document.querySelectorAll('.theme-opt').forEach(function (x) { x.classList.remove('on'); });
-          o.classList.add('on'); refreshPreview();
+          o.classList.add('on');
+          refreshPreview(); saveDraftSoon();
         };
         themes.appendChild(o);
       });
@@ -1100,7 +1106,7 @@
     }
     function bindInputs() {
       document.querySelectorAll('#form-box input, #form-box textarea').forEach(function (inp) {
-        inp.addEventListener('input', refreshPreview);
+        inp.addEventListener('input', function () { refreshPreview(); saveDraftSoon(); });
       });
     }
     function secTitle(no, txt) {
@@ -1150,6 +1156,7 @@
       var agreeBox = document.getElementById('agree-tos');
       if (!agreeBox.checked) { toast('请先勾选同意《免责声明与用户权益承诺书》'); agreeBox.focus(); return; }
       localStorage.setItem('nfc-tos', 'v2');
+      try { sessionStorage.setItem('nfc-tos', 'v2'); } catch (e) {}
       var r = collect();
       if (r.missing) { toast('还有必填项：' + r.missing); return; }
       var url = CANON + '#d=' + b64urlEncode(JSON.stringify(r.d));
@@ -1196,8 +1203,69 @@
       if (u) copyText(u, '链接已复制，去 NFC Tools 写入吧');
     };
 
+    /* ---- 缓存保护：草稿存本标签页 sessionStorage（刷新不丢，关标签自动清空，用户间天然隔离） ---- */
+    var DRAFT_KEY = 'nfc-draft-v1', draftT = null;
+    function saveDraft() {
+      try {
+        var k = curTpl(), t = TPL[k];
+        var st = { k: k, sty: curStyle(), vals: {}, rows: {} };
+        t.fd.forEach(function (f) {
+          if (f.type === 'rows') {
+            var arr = [];
+            for (var i = 0; i < f.max; i++) {
+              var ia = document.querySelector('[data-rows="' + f.id + ':n:' + i + '"]');
+              var iu = document.querySelector('[data-rows="' + f.id + ':v:' + i + '"]');
+              arr.push([ia ? ia.value : '', iu ? iu.value : '']);
+            }
+            st.rows[f.id] = arr;
+          } else {
+            var e = document.querySelector('[data-fid="' + f.id + '"]');
+            if (e) st.vals[f.id] = e.value;
+          }
+        });
+        sessionStorage.setItem(DRAFT_KEY, JSON.stringify(st));
+      } catch (e) {}
+    }
+    function saveDraftSoon() { clearTimeout(draftT); draftT = setTimeout(saveDraft, 350); }
+    function restoreDraft() {
+      var st = null;
+      try { st = JSON.parse(sessionStorage.getItem(DRAFT_KEY) || 'null'); } catch (e) {}
+      if (!st || !st.k || !TPL[st.k]) return false;
+      document.querySelectorAll('.tpl-opt').forEach(function (x) { x.classList.toggle('on', x.dataset.k === st.k); });
+      rebuildForm();
+      var t = TPL[st.k];
+      var styIdx = 0;
+      t.st.forEach(function (s, i) { if (s.id === st.sty) styIdx = i; });
+      document.querySelectorAll('.theme-opt').forEach(function (x, i) { x.classList.toggle('on', i === styIdx); });
+      if (st.vals) Object.keys(st.vals).forEach(function (fid) {
+        var e = document.querySelector('[data-fid="' + fid + '"]');
+        if (e) {
+          e.value = st.vals[fid];
+          var ct = e.parentNode ? e.parentNode.querySelector('.counter') : null;
+          if (ct && e.maxLength > 0) ct.textContent = e.value.length + '/' + e.maxLength;
+        }
+      });
+      if (st.rows) Object.keys(st.rows).forEach(function (rid) {
+        (st.rows[rid] || []).forEach(function (pair, i) {
+          if (!pair) return;
+          var ia = document.querySelector('[data-rows="' + rid + ':n:' + i + '"]');
+          var iu = document.querySelector('[data-rows="' + rid + ':v:' + i + '"]');
+          if (ia && pair[0] != null) ia.value = pair[0];
+          if (iu && pair[1] != null) iu.value = pair[1];
+        });
+      });
+      return true;
+    }
+
     rebuildForm();
     refreshPreview();
+    /* 恢复本标签页草稿（有则覆盖默认模板选择） */
+    if (restoreDraft()) {
+      toast('已恢复上次填写的内容');
+      bindInputs();
+      refreshPreview();
+    }
+    bindInputs();
   }
 
   /* ================= 入口 ================= */
