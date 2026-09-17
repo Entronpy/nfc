@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>分享链接 → NFC 可刷链接 · 一键转链</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: #eef1f5; color: #232a33; line-height: 1.6; min-height: 100vh;
+    display: flex; align-items: flex-start; justify-content: center; padding: 30px 14px 60px;
+  }
+  .card {
+    width: 100%; max-width: 560px; background: #fff; border-radius: 16px;
+    box-shadow: 0 6px 28px rgba(20,30,50,.10); padding: 26px 22px 24px;
+  }
+  h1 { font-size: 21px; text-align: center; letter-spacing: 1px; }
+  .sub { text-align: center; color: #67707c; font-size: 13px; margin: 6px 0 20px; }
+  .lbl { font-size: 13px; color: #556; margin: 14px 0 6px; display: flex; align-items: center; gap: 6px; }
+  .step { width: 20px; height: 20px; border-radius: 50%; background: #2563eb; color: #fff; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  .plat { display: flex; gap: 10px; }
+  .plat button {
+    flex: 1; padding: 12px 6px; border-radius: 12px; border: 2px solid #e3e8ef;
+    background: #f6f8fb; font-size: 14.5px; font-weight: 600; color: #445; cursor: pointer; transition: all .15s;
+  }
+  .plat button.on { border-color: #2563eb; background: #eef4ff; color: #1d4ed8; }
+  textarea {
+    width: 100%; min-height: 110px; border: 1.5px solid #d5dbe3; border-radius: 12px;
+    padding: 12px 13px; font-size: 14.5px; font-family: inherit; outline: none; resize: vertical;
+    transition: border .15s;
+  }
+  textarea:focus { border-color: #2563eb; }
+  .go {
+    width: 100%; margin-top: 16px; border: none; border-radius: 12px;
+    background: linear-gradient(135deg,#2563eb,#1d4ed8); color: #fff; font-size: 16.5px;
+    padding: 13px; letter-spacing: 2px; cursor: pointer; box-shadow: 0 3px 10px rgba(37,99,235,.3);
+  }
+  .go:active { transform: translateY(1px); }
+  .warn { margin-top: 10px; font-size: 12.5px; color: #b45309; background: #fff7e8; border: 1px solid #f3ddb0; border-radius: 9px; padding: 8px 12px; display: none; }
+  .result { display: none; margin-top: 18px; background: #f0fdf4; border: 1px solid #b7e4c0; border-radius: 12px; padding: 16px 15px 14px; }
+  .result h3 { font-size: 14.5px; color: #166534; margin-bottom: 10px; }
+  .urlbox {
+    background: #fff; border: 1px solid #cde8d3; border-radius: 10px; padding: 11px 12px;
+    font-family: Consolas, monospace; font-size: 14px; word-break: break-all; color: #14532d;
+  }
+  .meta { font-size: 12px; color: #7a8794; margin-top: 8px; }
+  .btnrow { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .btn { flex: 1; min-width: 130px; border: none; border-radius: 10px; padding: 11px 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .b-copy { background: #16a34a; color: #fff; }
+  .b-qr { background: #eef4ff; color: #1d4ed8; border: 1px solid #c9dcf8; }
+  .qrwrap { display: none; margin-top: 12px; text-align: center; }
+  .qrwrap img { width: 190px; height: 190px; border: 1px solid #d8e6da; border-radius: 10px; background: #fff; }
+  .qrwrap p { font-size: 12px; color: #7a8794; margin-top: 6px; }
+  .steps { margin-top: 20px; padding-top: 14px; border-top: 1px dashed #d8dee7; font-size: 12.5px; color: #66707c; }
+  .steps b { color: #334; }
+  .toast { position: fixed; left: 50%; bottom: 36px; transform: translateX(-50%); background: rgba(20,28,40,.92); color: #fff; font-size: 14px; border-radius: 10px; padding: 10px 18px; opacity: 0; pointer-events: none; transition: all .25s; }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>分享链接 → NFC 可刷链接</h1>
+  <div class="sub">粘贴抖音 / 小红书的分享内容，一键提取可直接刷入卡片的链接</div>
+
+  <div class="lbl"><span class="step">1</span>这个链接来自哪个平台？</div>
+  <div class="plat">
+    <button type="button" data-p="douyin" class="on">🎵 抖音</button>
+    <button type="button" data-p="xhs">📕 小红书</button>
+  </div>
+
+  <div class="lbl"><span class="step">2</span>粘贴分享内容（整段粘进来就行，不用自己挑链接）</div>
+  <textarea id="raw" placeholder="例如：7.99 复制打开抖音，看看【某某的作品】… https://v.douyin.com/xxxx/ 01/14 &#10;或：05 某某发布了新笔记 https://xhslink.com/xxxx ，快来一起看看！"></textarea>
+  <div class="warn" id="warn"></div>
+
+  <button class="go" id="go">一键生成可刷入的链接</button>
+
+  <div class="result" id="result">
+    <h3>✅ 已生成，把下面这条链接刷进 NFC 卡即可</h3>
+    <div class="urlbox" id="urlbox"></div>
+    <div class="meta" id="meta"></div>
+    <div class="btnrow">
+      <button class="btn b-copy" id="copy">📋 复制链接</button>
+      <button class="btn b-qr" id="qrbtn">🔲 生成二维码（备用入口）</button>
+    </div>
+    <div class="qrwrap" id="qrwrap">
+      <div id="qrbox"></div>
+      <p>万一某人的手机碰卡不识别，扫这个码也能到同一页面</p>
+    </div>
+    <div class="meta" style="margin-top:12px">📱 写卡方法：NFC Tools → 写 → 添加记录 → URL/URI → 粘贴这条链接 → 写入（详见主教程）</div>
+  </div>
+
+  <div class="steps">
+    <b>给店家/代刷的人：</b>生成后点「复制链接」，在 NFC Tools 里按上面方法写入即可。这条链接是抖音/小红书官方的网页链接，长期有效；刷完碰卡测试一下。<br>
+    <b>⚠️ 别用「锁定」功能</b>——锁了以后这条卡就永远改不了内容了。
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script src="qrcode.min.js"></script>
+<script>
+(function () {
+  'use strict';
+  var NFC_LIMIT = 690, platform = 'douyin';
+
+  function toast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(t._tm);
+    t._tm = setTimeout(function () { t.classList.remove('show'); }, 2200);
+  }
+  /* 从分享文本中提取真实网址（抖音/小红书整段分享文本、短链、老式口令码通吃） */
+  function extractUrl(raw) {
+    raw = (raw || '').trim();
+    if (!raw) return '';
+    var m = raw.match(/https?:\/\/[^\s，。；、】》」』"'‘’]+/i);
+    if (m) return m[0].replace(/[),.。;；、]+$/, '');
+    if (/抖音|douyin/i.test(raw)) {
+      var c = raw.match(/([A-Za-z0-9_-]{8,}):\//);
+      if (c) return 'https://v.douyin.com/' + c[1] + '/';
+    }
+    return '';
+  }
+  function detectPlatform(u) {
+    if (/xhslink\.com|xiaohongshu\.com/i.test(u)) return 'xhs';
+    if (/v\.douyin\.com|douyin\.com|iesdouyin\.com/i.test(u)) return 'douyin';
+    return '';
+  }
+
+  document.querySelectorAll('.plat button').forEach(function (b) {
+    b.onclick = function () {
+      document.querySelectorAll('.plat button').forEach(function (x) { x.classList.remove('on'); });
+      b.classList.add('on');
+      platform = b.dataset.p;
+    };
+  });
+
+  document.getElementById('go').onclick = function () {
+    var warn = document.getElementById('warn');
+    var raw = document.getElementById('raw').value;
+    var url = extractUrl(raw);
+    warn.style.display = 'none';
+    if (!url) {
+      warn.textContent = '没有在粘贴内容里找到链接。请回 App 点「分享 → 复制链接」，把复制到的内容整段粘贴进来再试。';
+      warn.style.display = 'block';
+      return;
+    }
+    var actual = detectPlatform(url);
+    if (actual && actual !== platform) {
+      warn.style.display = 'block';
+      warn.textContent = '⚠️ 注意：这条链接看起来是「' + (actual === 'xhs' ? '小红书' : '抖音') + '」的，和上面选的平台不一致——不影响生成，但请确认选对了平台。';
+    }
+    var len = url.length;
+    document.getElementById('urlbox').textContent = url;
+    document.getElementById('meta').textContent = '链接长度 ' + len + ' 字符 / NFC 容量 690 —— ' + (len <= 690 ? '✅ 可以直接刷入' : '❌ 超出容量，这条链接太长');
+    document.getElementById('result').style.display = 'block';
+    var qb = document.getElementById('qrwrap');
+    qb.style.display = 'none';
+    document.getElementById('qrbtn').onclick = function () {
+      var box = document.getElementById('qrbox');
+      box.innerHTML = '';
+      try {
+        var q = qrcode(0, 'M');
+        q.addData(url); q.make();
+        box.innerHTML = q.createSvgTag({ cellSize: 5, margin: 2 });
+        qb.style.display = 'block';
+      } catch (e) { toast('二维码生成失败'); }
+    };
+    document.getElementById('copy').onclick = function () { copyUrl(url); };
+    document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    toast('生成成功，已自动提取链接');
+  };
+
+  function copyUrl(url) {
+    function fb() {
+      var ta = document.createElement('textarea');
+      ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); toast('已复制'); } catch (e) { toast('复制失败，请长按手动复制'); }
+      document.body.removeChild(ta);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(function () { toast('已复制'); }, fb);
+    } else fb();
+  }
+})();
+</script>
+</body>
+</html>
