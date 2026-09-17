@@ -533,7 +533,7 @@
         { id: 'to', lb: '致（TA 的名字/昵称）', req: 1, max: 20, ph: '如：小雨', half: 1 },
         { id: 'fm', lb: '署名（留空=匿名）', max: 20, ph: '如：一个欣赏你的人', half: 1 },
         { id: 'msg', lb: '想说的话', type: 'area', req: 1, max: 260, ph: '碰卡的人都会看到这段话，写点真心话' },
-        { id: 'song', lb: '歌曲链接（网易云，选填）', max: 300, ph: '分享复制整段粘进来就行，自动识别', tip: '带 id 的链接（music.163.com/song?id=…）→ 卡内直接播放；163cn.tv 短链 → 点击跳转网易云播放' },
+        { id: 'song', lb: '歌曲链接（网易云，选填）', max: 300, ph: '分享复制整段粘进来就行，自动识别', tip: '带 id 的链接 → 卡内直接播放（免费歌）；短链或会员歌 → 点击跳转网易云播放' },
         { id: 'sn', lb: '歌名（选填）', max: 30, ph: '如：晴天 - 周杰伦', tip: '显示在小唱片旁边' }
       ]
     },
@@ -682,18 +682,31 @@
       };
       return;
     }
-    function mount() {
-      var old = card.querySelector('#ncm-audio'); if (old) old.remove();
-      var f = document.createElement('iframe');
-      f.id = 'ncm-audio';
-      f.setAttribute('allow', 'autoplay; encrypted-media');
-      f.setAttribute('title', 'music');
-      f.style.cssText = 'position:absolute;width:1px;height:1px;border:0;opacity:0;pointer-events:none;';
-      f.src = 'https://music.163.com/outchain/player?type=2&id=' + sid + '&auto=1&height=66';
-      card.appendChild(f);
-    }
+    var extOnly = false;   /* VIP/受限歌曲无直链 → 自动切跳转模式 */
     function stop() {
-      var old = card.querySelector('#ncm-audio'); if (old) old.remove();
+      var a = card.querySelector('#ncm-audio');
+      if (a) { try { a.pause(); } catch (e) {} a.remove(); }
+    }
+    function play() {
+      stop();
+      var au = document.createElement('audio');
+      au.id = 'ncm-audio';
+      au.preload = 'auto';
+      au.style.display = 'none';
+      au.src = 'https://music.163.com/song/media/outer/url?id=' + sid + '.mp3';
+      au.onended = function () { playing = false; setPlay(false); };
+      au.onerror = function () {
+        playing = false;
+        setPlay(false);
+        extOnly = true;
+        btn.textContent = '↗';
+        txt.innerHTML = '点击打开<br><b>TA 为你点播</b>的这首歌曲';
+        toast('这首是会员歌曲，再点一下打开网易云播放');
+        stop();
+      };
+      card.appendChild(au);
+      var pr = au.play();
+      if (pr && pr.catch) pr.catch(function () { /* onerror 接管 */ });
     }
     function setPlay(p) {
       btn.textContent = p ? '⏸' : '▶';
@@ -702,17 +715,18 @@
     wrap.onclick = function () {
       clearTimeout(shrinkT);
       wrap.classList.add('hint-done');   /* 首次点击后引导永久消失 */
+      if (extOnly) { window.open('https://music.163.com/song?id=' + sid, '_blank'); return; }
       if (!expanded) {
         expanded = true;
         wrap.classList.remove('vsmall');
         playing = true;
-        mount();
+        play();
         setPlay(true);
         shrink();
         return;
       }
       playing = !playing;
-      if (playing) mount(); else stop();
+      if (playing) play(); else stop();
       setPlay(playing);
       shrink();
     };
