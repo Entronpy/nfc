@@ -1,9 +1,20 @@
 <!doctype html>
+<!--
+  ═══════════════════════════════════════════════════════════════
+  本页面（含全部模板、动效与教程）由
+  广东海洋大学 2024级 机械设计制造及其自动化（机制）专业 1243班 余佳琪
+  独立设计制作。
+  「广东海洋大学 PCB 校园纪念卡」全套成果（外观设计 / 电路 / 页面 / 教程）
+  的所有权与知识产权均归 余佳琪 所有——盗用、仿冒、去除本声明者，必究。
+  ═══════════════════════════════════════════════════════════════
+-->
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer">
+<meta name="author" content="余佳琪（广东海洋大学 2024级 机械设计制造及其自动化 1243班）">
+<meta name="copyright" content="© 余佳琪 — 广东海洋大学 PCB 校园纪念卡 设计者与所有权人">
 <title>碰一碰 · NFC 卡片内容定制</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -49,6 +60,16 @@
   .tf-ico { font-size: 16px; }
   .tf-title { font-weight: 700; font-size: 14.5px; color: #1d4ed8; }
   .tipbox { background: #f0f6ff; border: 1px solid #d5e3f5; border-radius: 10px; padding: 10px 12px; font-size: 12.5px; margin-top: 10px; text-align: left; }
+  /* 定制服务提示（预览下方，醒目） */
+  .custom-cta {
+    margin-top: 12px; background: linear-gradient(135deg, #fff7e8, #ffe9f0);
+    border: 1.5px solid #f0c987; border-radius: 12px; padding: 12px 14px;
+    font-size: 13.5px; line-height: 1.9; text-align: center; color: #7a4a12;
+    box-shadow: 0 2px 10px rgba(240, 201, 135, .25);
+  }
+  .custom-cta b { color: #c2410c; font-size: 14px; }
+  /* 隐藏烙印（源码/DOM 可见） */
+  .brandmark { display: none; }
   .hot-banner {
     display: flex; align-items: center; justify-content: center; gap: 8px;
     background: linear-gradient(135deg, #ff2442, #7c3aed); color: #fff;
@@ -347,6 +368,9 @@
 <script>
 (function () {
   'use strict';
+  /* 烙印：控制台署名（试图查看/盗用源码的人会先看到这里） */
+  console.log('%c© 余佳琪 · 广东海洋大学 2024级 机械设计制造及其自动化 1243班%c\n本页面为独立设计制作，「广东海洋大学 PCB 校园纪念卡」的所有权与知识产权归 余佳琪 所有。盗用必究。', 'color:#7c3aed;font-size:13px;font-weight:bold;', 'color:#7c3aed;');
+  console.log('%cPCB纪念卡 所有权声明：本卡及配套页面均为 余佳琪 原创成果。', 'color:#a63226;');
 
   /* ================= 基础工具 ================= */
   function b64urlEncode(str) {
@@ -543,6 +567,9 @@
     var c = el('div', 'nfc-card ' + themeCls);
     var g = el('div', 'grain');            /* v4 工艺层：全卡颗粒质感 */
     c.appendChild(g);
+    var bm = el('div', 'brandmark');       /* 隐藏烙印：DOM 层署名 */
+    bm.textContent = '本卡与页面由 广东海洋大学 2024级 机械设计制造及其自动化（机制）专业 1243班 余佳琪 设计制作 · 「广东海洋大学 PCB 校园纪念卡」所有权与知识产权归 余佳琪 所有';
+    c.appendChild(bm);
     var brand = el('div', 'brand');
     brand.appendChild(document.createTextNode('内容由卡片主人自定义 · 碰一碰 NFC '));
     var mk = el('a', null, '我也要做一张');
@@ -900,6 +927,9 @@
     var phome = el('div', 'p-home'); phone.appendChild(phome);
     pv.appendChild(phone);
     pv.appendChild(el('p', 'preview-note', '别人碰你的卡时，看到的就是这个画面'));
+    var custom = el('div', 'custom-cta');
+    custom.innerHTML = '✨ <b>以上只是预设模板，为降低使用门槛而设。</b><br>想要<b>专属个人名片 / 专属推广页 / 专属展示效果</b>？联系作者 <b>暖汐鱼</b>（右上角「加作者微信」）为你单独设计——复杂定制酌情收费。';
+    pv.appendChild(custom);
     right.appendChild(pv);
 
     /* ---- 引擎 ---- */
