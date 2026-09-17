@@ -1006,8 +1006,9 @@
       $('result').style.display = 'block';
       /* 自动存入转接页（本地列表，最多保留 20 条） */
       try {
+        var dd = r.d;
         var list = JSON.parse(localStorage.getItem('nfc-transfer') || '[]');
-        list.unshift({ t: Date.now(), url: url, label: (d.n || d.to || d.sc || d.nk || d.it || '链接') });
+        list.unshift({ t: Date.now(), url: url, label: (dd.n || dd.to || dd.sc || dd.nk || dd.it || '链接') });
         if (list.length > 20) list.length = 20;
         localStorage.setItem('nfc-transfer', JSON.stringify(list));
       } catch (e) {}
