@@ -535,7 +535,8 @@
         { id: 'to', lb: '致（TA 的名字/昵称）', req: 1, max: 20, ph: '如：小雨', half: 1 },
         { id: 'fm', lb: '署名（留空=匿名）', max: 20, ph: '如：一个欣赏你的人', half: 1 },
         { id: 'msg', lb: '想说的话', type: 'area', req: 1, max: 260, ph: '碰卡的人都会看到这段话，写点真心话' },
-        { id: 'song', lb: '一首歌的链接（选填）', max: 300, ph: '粘贴网易云歌曲页链接，自动识别歌名/封面', tip: '碰卡后左下角点一下小唱片：放大并播放，再点暂停；5 秒无操作自动缩回' }
+        { id: 'song', lb: '歌曲链接（网易云，选填）', max: 300, ph: 'App 分享复制整段粘进来也行', tip: '碰卡后左下角出现小唱片：点一下放大并播放，再点暂停；5 秒无操作自动缩回' },
+        { id: 'sn', lb: '歌名（选填）', max: 30, ph: '如：晴天 - 周杰伦', tip: '显示在小唱片旁边' }
       ]
     },
     grad: {
@@ -760,7 +761,7 @@
       if (d.msg) c.appendChild(el('div', 'quote', d.msg));
       c.appendChild(el('div', 'sig', '—— ' + (d.fm || '匿名')));
       c.appendChild(el('div', 'sep'));   /* 心电图扫描线（fx-love-heartbeat 工艺层宿主） */
-      if (d.song) { try { addVinyl(c, d.song); } catch (e) {} }
+      if (d.song) { try { addVinyl(c, d.song, d.sn); } catch (e) {} }
       return finish(c);
     },
     grad: function (d) {
