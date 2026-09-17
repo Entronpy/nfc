@@ -368,7 +368,9 @@
   .vinyl-wrap.vsmall .vinyl-disc { box-shadow: 0 0 0 2px rgba(255,255,255,.85), 0 2px 8px rgba(0,0,0,.45); }
   .vinyl-wrap.vsmall.vinyl-paused .vinyl-cover::after { content: "▶"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 7px; color: #fff; }
   @keyframes fx-vinyl { to { transform: rotate(360deg); } }
-  @keyframes fx-vinyl { to { transform: rotate(360deg); } }
+  /* 微信内播放受限提示（仅在微信 UA 且播放失败时出现） */
+  .wx-tip { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); max-width: 92%; background: rgba(15,20,30,.86); color: #fff; font-size: 11px; line-height: 1.5; padding: 7px 12px; border-radius: 9px; text-align: center; z-index: 5; }
+  .wx-tip b { color: #ffd166; }
   /* 浮空手写引导 + 弹簧箭头（最终版）：与迷你唱片并排，首次交互后整体消失 */
   .vinyl-hint { position: absolute; left: 2px; bottom: 34px; width: 96px; text-align: center; pointer-events: none; z-index: 2; font-family: "Kaiti SC", KaiTi, STKaiti, "Yuanti SC", cursive; }
   .vh-txt { font-size: 9px; line-height: 1.3; color: inherit; text-shadow: 1px 1px 2px rgba(0,0,0,.25); animation: vh-bob 2.6s ease-in-out infinite; }
@@ -683,6 +685,15 @@
       return;
     }
     var extOnly = false;   /* VIP/受限歌曲无直链 → 自动切跳转模式 */
+    var IN_WX = /MicroMessenger/i.test(navigator.userAgent);   /* 微信内置浏览器（屏蔽网易云域） */
+    function wxTip(show) {
+      var t = card.querySelector('.wx-tip');
+      if (show && !t) {
+        t = el('div', 'wx-tip');
+        t.innerHTML = '⚠️ 微信内无法播放网易云 —— 点右上角 <b>···</b> → <b>在浏览器打开</b>';
+        card.appendChild(t);
+      } else if (!show && t) t.remove();
+    }
     function stop() {
       var a = card.querySelector('#ncm-audio');
       if (a) { try { a.pause(); } catch (e) {} a.remove(); }
@@ -698,15 +709,26 @@
       au.onerror = function () {
         playing = false;
         setPlay(false);
+        stop();
+        if (IN_WX) { wxTip(true); return; }        /* 微信：引导外部浏览器打开 */
         extOnly = true;
         btn.textContent = '↗';
         txt.innerHTML = '点击打开<br><b>TA 为你点播</b>的这首歌曲';
         toast('这首是会员歌曲，再点一下打开网易云播放');
-        stop();
       };
       card.appendChild(au);
       var pr = au.play();
       if (pr && pr.catch) pr.catch(function () { /* onerror 接管 */ });
+      /* 微信静默失败兜底：2.6 秒没出声就给用户出路 */
+      if (IN_WX) {
+        setTimeout(function () {
+          if (playing && au.parentNode && au.currentTime === 0) {
+            wxTip(true);
+            playing = false;
+            setPlay(false);
+          }
+        }, 2600);
+      }
     }
     function setPlay(p) {
       btn.textContent = p ? '⏸' : '▶';
