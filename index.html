@@ -366,6 +366,14 @@
   function cleanUrl(u) {
     u = (u || '').trim();
     if (!u) return '';
+    /* 智能提取：抖音/小红书的"分享文本"是整段话埋一个链接，直接抠出网址 */
+    var m = u.match(/https?:\/\/[^\s，。；、】》」』"'‘’]+/i);
+    if (m) return m[0].replace(/[),.。;；、]+$/, '');
+    /* 抖音老式口令码：没有 http 链接、只有 xxxx:/ 这种码（且文中提到抖音） */
+    if (/抖音|douyin/i.test(u)) {
+      var c = u.match(/([A-Za-z0-9_-]{8,}):\//);
+      if (c) return 'https://v.douyin.com/' + c[1] + '/';
+    }
     if (!/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(u)) u = 'https://' + u;
     return u;
   }
@@ -430,8 +438,8 @@
       fd: [
         { id: 'n', lb: '昵称 / 账号名（必填）', req: 1, max: 24, ph: '如：海大干饭王' },
         { id: 'bio', lb: '账号简介（选填）', type: 'area', max: 80, ph: '碰卡的人第一眼看到的一句话' },
-        { id: 'xhs', lb: '小红书链接（选填）', max: 180, ph: 'App里点分享→复制链接，直接粘贴', tip: 'xhslink.com 或 xiaohongshu.com 开头的都行' },
-        { id: 'dy', lb: '抖音链接（选填）', max: 180, ph: 'App里点分享→复制链接，直接粘贴', tip: 'v.douyin.com 或 douyin.com 开头的都行' },
+        { id: 'xhs', lb: '小红书链接（选填）', max: 500, ph: '点分享→复制，整段粘贴进来就行', tip: '自动提取链接：整段分享文字、短链、长链都能识别' },
+        { id: 'dy', lb: '抖音链接（选填）', max: 500, ph: '点分享→复制，整段粘贴进来就行', tip: '自动提取链接：整段分享文字、短链、口令码都能识别' },
         { type: 'rows', id: 'L', lb: '其他平台（最多 2 个，选填）', nph: '平台名，如 B站', vph: '链接', url: 1, max: 2 },
         { id: 'q', lb: 'QQ（选填）', max: 20, half: 1, tip: '填了自动用QQ头像' },
         { id: 'av', lb: '头像图片链接（选填）', max: 200, ph: '优先于QQ头像' }
@@ -446,7 +454,7 @@
         { id: 'to', lb: '致（TA 的名字/昵称）', req: 1, max: 20, ph: '如：小雨', half: 1 },
         { id: 'fm', lb: '署名（留空=匿名）', max: 20, ph: '如：一个欣赏你的人', half: 1 },
         { id: 'msg', lb: '想说的话', type: 'area', req: 1, max: 260, ph: '碰卡的人都会看到这段话，写点真心话' },
-        { id: 'song', lb: '一首歌的链接（选填）', max: 120, ph: '如 网易云分享链接，碰卡可以点开听' }
+        { id: 'song', lb: '一首歌的链接（选填）', max: 300, ph: '分享里复制整段也行，自动提取链接' }
       ]
     },
     grad: {
@@ -471,7 +479,7 @@
         { id: 'sl', lb: '一句话口号', max: 30, ph: '如：把想法焊进现实', half: 1 },
         { id: 'qqg', lb: 'QQ 群号', max: 20, ph: '碰卡一键复制进群', half: 1, tip: '填群号自动用群头像当卡片头像' },
         { id: 'it', lb: '社团介绍', type: 'area', max: 160, ph: '做什么、缺什么人、活动频率' },
-        { id: 'u', lb: '报名表 / 主页链接（选填）', max: 120, ph: '如问卷或公众号链接' },
+        { id: 'u', lb: '报名表 / 主页链接（选填）', max: 300, ph: '分享里复制整段也行，自动提取链接' },
         { id: 'av', lb: '社团 Logo 链接（选填）', max: 200, ph: '粘贴图片网址，优先于群头像' }
       ]
     },
@@ -950,6 +958,12 @@
         } else {
           var inp = document.querySelector('[data-fid="' + f.id + '"]');
           var val = inp.value.trim();
+          /* 链接类字段（song/u/xhs/dy/av）自动清洗：整段分享文本也能直接粘 */
+          if (val && (f.url || f.id === 'xhs' || f.id === 'dy' || f.id === 'song' || f.id === 'u' || f.id === 'av')) {
+            var clean = cleanUrl(val);
+            if (clean !== val && !collect._toastShown) { collect._toastShown = true; toast('已自动从分享文本提取链接'); setTimeout(function(){ collect._toastShown = false; }, 3000); }
+            val = clean;
+          }
           if (val) d[f.id] = val;
           if (f.req && !val && !missing) missing = f.lb;
         }
