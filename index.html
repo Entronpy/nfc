@@ -370,10 +370,10 @@
   @keyframes fx-vinyl { to { transform: rotate(360deg); } }
   @keyframes fx-vinyl { to { transform: rotate(360deg); } }
   /* 浮空手写引导 + 弹簧箭头（最终版）：与迷你唱片并排，首次交互后整体消失 */
-  .vinyl-hint { position: absolute; left: 2px; bottom: 2px; width: 96px; text-align: center; pointer-events: none; z-index: 2; font-family: "Kaiti SC", KaiTi, STKaiti, "Yuanti SC", cursive; }
-  .vh-txt { font-size: 9.5px; line-height: 1.45; color: inherit; text-shadow: 1px 1px 2px rgba(0,0,0,.25); animation: vh-bob 2.6s ease-in-out infinite; }
+  .vinyl-hint { position: absolute; left: 2px; bottom: 34px; width: 96px; text-align: center; pointer-events: none; z-index: 2; font-family: "Kaiti SC", KaiTi, STKaiti, "Yuanti SC", cursive; }
+  .vh-txt { font-size: 9px; line-height: 1.3; color: inherit; text-shadow: 1px 1px 2px rgba(0,0,0,.25); animation: vh-bob 2.6s ease-in-out infinite; }
   .vh-txt b { color: #e0407c; }
-  .vh-arrow { position: absolute; top: -13px; left: 16px; width: 14px; height: 13px; overflow: visible; }
+  .vh-arrow { position: absolute; top: 100%; left: 50%; margin: 0 0 0 -7px; width: 14px; height: 14px; overflow: visible; }
   .vh-arrow path { stroke: currentColor; animation: vh-draw .7s ease-out forwards, vh-fadein .4s ease-out .4s both; }
   .vinyl-wrap:not(.vsmall) .vinyl-hint, .vinyl-wrap.hint-done .vinyl-hint { display: none; }
   @keyframes vh-bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-2px)} }
@@ -655,22 +655,9 @@
     txt.innerHTML = '点击播放<br><b>TA 为你点播</b>的这首歌曲';
     hint.appendChild(txt);
     var arw = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    arw.setAttribute('viewBox', '0 0 22 20');
+    arw.setAttribute('viewBox', '0 0 16 18');
     arw.setAttribute('class', 'vh-arrow');
-    arw.innerHTML = '<path d="M11 0 C 8 4, 6 7, 5 12" fill="none" stroke-width="2" stroke-linecap="round"/><path d="M1 10 L5 16 L10 11" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
-    hint.appendChild(arw);
-    card.appendChild(wrap);
-    /* 浮空手写引导气泡 + 弹簧箭头（指向迷你黑胶，引导首次点击） */
-    var hint = el('div', 'vinyl-hint');
-    var bub = el('div', 'vh-bubble');
-    bub.innerHTML = '点击播放<b>TA 为你点播</b><br>的这首歌曲';
-    hint.appendChild(bub);
-    var arw = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    arw.setAttribute('class', 'vh-arrow');
-    arw.setAttribute('viewBox', '0 0 60 40');
-    arw.innerHTML =
-      '<path class="vh-line" d="M40 4 C 22 8, 14 16, 12 32" fill="none" stroke-width="2.5" stroke-linecap="round"/>' +
-      '<path class="vh-head" d="M5 26 L12 34 L19 27" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>';
+    arw.innerHTML = '<path d="M8 0 C 8 5, 7 9, 5 14" fill="none" stroke-width="2" stroke-linecap="round"/><path d="M1 12 L5 17 L10 11" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
     hint.appendChild(arw);
     wrap.appendChild(hint);
     card.appendChild(wrap);
