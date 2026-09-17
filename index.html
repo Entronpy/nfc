@@ -352,6 +352,22 @@
   .fx-social-both .link-btn:nth-of-type(odd) { background:#ff2442; }
   .fx-social-both .link-btn:nth-of-type(even) { background:#161823; color:#00f2ea; }
 
+  /* 黑胶唱片播放器（love 表白卡）：唱片旋转，中央按钮保持静止 */
+  .vinyl-wrap { position: absolute; left: 12px; bottom: 38px; display: flex; align-items: center; gap: 9px; z-index: 2; }
+  .vinyl-unit { position: relative; width: 54px; height: 54px; flex: none; transition: width .25s ease, height .25s ease; }
+  .vinyl-disc { position: absolute; inset: 0; border-radius: 50%; background: repeating-radial-gradient(circle at 50% 50%, #0b0b0b 0 1.5px, #1b1b1b 1.5px 3.5px); box-shadow: 0 0 0 1px #000, 0 4px 10px rgba(0,0,0,.35); animation: fx-vinyl 3.6s linear infinite; }
+  .vinyl-cover { position: absolute; inset: 11px; border-radius: 50%; background: #333 center/cover no-repeat; }
+  .vinyl-btn { position: absolute; inset: 0; margin: auto; width: 20px; height: 20px; border-radius: 50%; border: none; background: rgba(0,0,0,.5); color: #fff; font-size: 9px; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0 0 0 1px; z-index: 2; }
+  .vinyl-btn:hover { background: rgba(0,0,0,.7); }
+  .vinyl-name { font-size: 11.5px; max-width: 150px; text-align: left; opacity: .92; line-height: 1.35; }
+  .vinyl-wrap.vinyl-paused .vinyl-disc { animation-play-state: paused; }
+  .vinyl-wrap.vsmall .vinyl-unit { width: 24px; height: 24px; }
+  .vinyl-wrap.vsmall .vinyl-cover { inset: 3px; }
+  .vinyl-wrap.vsmall .vinyl-btn { width: 12px; height: 12px; font-size: 6px; padding: 0; }
+  .vinyl-wrap.vsmall .vinyl-name { display: none; }
+  .vinyl-wrap.vsmall.vinyl-paused .vinyl-cover::after { content: "▶"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 7px; color: #fff; }
+  @keyframes fx-vinyl { to { transform: rotate(360deg); } }
+
   .display-stage { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px 14px; }
   .display-card-wrap { width: 100%; max-width: 380px; border-radius: 22px; overflow: hidden; box-shadow: 0 12px 46px rgba(15,25,50,.22); }
   .err-box { background: #fff; border-radius: 14px; padding: 30px 22px; text-align: center; max-width: 380px; }
@@ -500,7 +516,7 @@
         { id: 'to', lb: '致（TA 的名字/昵称）', req: 1, max: 20, ph: '如：小雨', half: 1 },
         { id: 'fm', lb: '署名（留空=匿名）', max: 20, ph: '如：一个欣赏你的人', half: 1 },
         { id: 'msg', lb: '想说的话', type: 'area', req: 1, max: 260, ph: '碰卡的人都会看到这段话，写点真心话' },
-        { id: 'song', lb: '一首歌的链接（选填）', max: 300, ph: '分享里复制整段也行，自动提取链接' }
+        { id: 'song', lb: '一首歌的链接（选填）', max: 300, ph: '粘贴网易云歌曲页链接，自动识别歌名/封面', tip: '碰卡时左下角黑胶唱片自动旋转播放；分享里复制整段也行' }
       ]
     },
     grad: {
@@ -597,6 +613,68 @@
     a.href = href; a.target = '_blank'; a.rel = 'noopener';
     links.appendChild(a);
   }
+
+  /* 黑胶唱片播放器（网易云歌曲）
+     交互：默认迷你唱片 → 点一下放大并播放 → 再点暂停/播放 → 5 秒无操作自动缩回
+     音源 = 网易云官方外链播放器（隐藏 iframe auto=1），纯客户端零后端 */
+  function addVinyl(card, songUrl, songName) {
+    var idm = String(songUrl).match(/[?&]id=(\d+)/);
+    if (!idm) return;
+    var sid = idm[1];
+    var wrap = el('div', 'vinyl-wrap vsmall');
+    var unit = el('div', 'vinyl-unit');
+    var disc = el('div', 'vinyl-disc');
+    var cover = el('div', 'vinyl-cover');
+    disc.appendChild(cover);
+    var btn = el('button', 'vinyl-btn');
+    btn.type = 'button'; btn.setAttribute('aria-label', '播放 / 暂停');
+    btn.textContent = '▶';
+    var nm = el('div', 'vinyl-name', '♪ ' + (songName || '音乐'));
+    unit.appendChild(disc); unit.appendChild(btn);
+    wrap.appendChild(unit); wrap.appendChild(nm);
+    card.appendChild(wrap);
+    var expanded = false, playing = false, shrinkT = null;
+    function mount() {
+      var old = card.querySelector('#ncm-audio'); if (old) old.remove();
+      var f = document.createElement('iframe');
+      f.id = 'ncm-audio';
+      f.setAttribute('allow', 'autoplay; encrypted-media');
+      f.setAttribute('title', 'music');
+      f.style.cssText = 'position:absolute;width:1px;height:1px;border:0;opacity:0;pointer-events:none;';
+      f.src = 'https://music.163.com/outchain/player?type=2&id=' + sid + '&auto=1&height=66';
+      card.appendChild(f);
+    }
+    function stop() {
+      var old = card.querySelector('#ncm-audio'); if (old) old.remove();
+    }
+    function setPlay(p) {
+      btn.textContent = p ? '⏸' : '▶';
+      wrap.classList.toggle('vinyl-paused', !p);
+    }
+    function scheduleShrink() {
+      clearTimeout(shrinkT);
+      shrinkT = setTimeout(function () {
+        expanded = false;
+        wrap.classList.add('vsmall');
+      }, 5000);
+    }
+    wrap.onclick = function () {
+      clearTimeout(shrinkT);
+      if (!expanded) {
+        expanded = true;
+        wrap.classList.remove('vsmall');
+        playing = true;
+        mount();
+        setPlay(true);
+        scheduleShrink();
+        return;
+      }
+      playing = !playing;
+      if (playing) mount(); else stop();
+      setPlay(playing);
+      scheduleShrink();
+    };
+  }
   function head(c, d, fallback, name, tag) {
     c.appendChild(avatarEl(d, fallback));
     c.appendChild(el('div', 'name', name));
@@ -640,7 +718,7 @@
       if (d.msg) c.appendChild(el('div', 'quote', d.msg));
       c.appendChild(el('div', 'sig', '—— ' + (d.fm || '匿名')));
       c.appendChild(el('div', 'sep'));   /* 心电图扫描线（fx-love-heartbeat 工艺层宿主） */
-      if (d.song) { try { addLink(c, '🎵 听这首歌', cleanUrl(d.song)); } catch (e) {} }
+      if (d.song) { try { addVinyl(c, d.song); } catch (e) {} }
       return finish(c);
     },
     grad: function (d) {
@@ -732,6 +810,7 @@
 
   /* ================= 制作模式 ================= */
   function runMaker() {
+    PREVIEW_MODE = true;   /* 预览中不自动出声，避免编辑打扰；展示页照常自动播放 */
     var app = document.getElementById('app');
 
     /* 页面右上角三入口（v4.2：做进定制页本体） */
