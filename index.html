@@ -1029,8 +1029,14 @@
       }
       $('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       var sh = $('save-hint'); if (sh) sh.remove();
-      var shn = el('div', 'hint', '✅ 已自动存入「转接页」，随时可回看这条链接和它的二维码');
+      var shn = el('div', 'hint');
       shn.id = 'save-hint';
+      shn.appendChild(document.createTextNode('✅ 已自动存入 '));
+      var shl = el('a', null, '「转接页」');
+      shl.href = 'transfer.html'; shl.target = '_blank'; shl.rel = 'noopener';
+      shl.style.cssText = 'color:#2563eb;text-decoration:underline;';
+      shn.appendChild(shl);
+      shn.appendChild(document.createTextNode('，随时可回看这条链接和它的二维码'));
       $('result').appendChild(shn);
     };
     $('copy-btn').onclick = function () {
