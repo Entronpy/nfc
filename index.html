@@ -35,6 +35,20 @@
   .tpl-opt .ti { font-size: 26px; line-height: 1.15; }
   .tpl-opt .tn { font-size: 13.5px; font-weight: 600; margin-top: 3px; }
   .tpl-opt .td { font-size: 11.5px; color: #8892a0; margin-top: 1px; }
+  /* 页面右上角三入口（v4.2） */
+  .top-links { display: flex; justify-content: flex-end; gap: 8px; max-width: 1060px; margin: 0 auto 4px; }
+  .top-links a { font-size: 12.5px; color: #556; background: #fff; border: 1px solid #e0e6ee; border-radius: 999px; padding: 5px 13px; text-decoration: none; transition: all .15s; }
+  .top-links a:hover { color: #2563eb; border-color: #bcd0f5; background: #f4f8ff; }
+  /* 教程分框 */
+  .sum-big { list-style: none; display: flex; align-items: center; gap: 10px; width: 100%; background: linear-gradient(135deg, #eaf1ff, #dbe7ff); border: 1.5px solid #b9cff7; border-radius: 12px; padding: 14px 16px; font-size: 15px; font-weight: 700; color: #1d4ed8; cursor: pointer; }
+  .sum-big::-webkit-details-marker { display: none; }
+  .sum-big .ico { font-size: 20px; }
+  .tut[open] .sum-big { border-color: #2563eb; }
+  .tframe { background: #fbfcfe; border: 1.5px solid #e3e8ef; border-radius: 14px; padding: 14px 16px 10px; margin-bottom: 12px; }
+  .tf-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .tf-ico { font-size: 16px; }
+  .tf-title { font-weight: 700; font-size: 14.5px; color: #1d4ed8; }
+  .tipbox { background: #f0f6ff; border: 1px solid #d5e3f5; border-radius: 10px; padding: 10px 12px; font-size: 12.5px; margin-top: 10px; text-align: left; }
   .hot-banner {
     display: flex; align-items: center; justify-content: center; gap: 8px;
     background: linear-gradient(135deg, #ff2442, #7c3aed); color: #fff;
@@ -693,6 +707,14 @@
   function runMaker() {
     var app = document.getElementById('app');
 
+    /* 页面右上角三入口（v4.2：做进定制页本体） */
+    var toplinks = el('div', 'top-links');
+    var tla = el('a', null, '🔗 本页二维码'); tla.href = 'qr.html'; tla.target = '_blank'; tla.rel = 'noopener';
+    var tlb = el('a', null, '📜 条款页'); tlb.href = 'terms.html'; tlb.target = '_blank'; tlb.rel = 'noopener';
+    var tlc = el('a', null, '💬 加作者微信'); tlc.href = 'wx.html'; tlc.target = '_blank'; tlc.rel = 'noopener';
+    toplinks.appendChild(tla); toplinks.appendChild(tlb); toplinks.appendChild(tlc);
+    app.appendChild(toplinks);
+
     var headEl = el('div', 'page-head');
     headEl.appendChild(el('h1', null, '碰一碰 · NFC 卡片内容定制'));
     headEl.appendChild(el('p', null, '选模板 → 填信息 → 生成链接 → 刷进你的卡'));
@@ -711,10 +733,7 @@
     var banner = el('div', 'hot-banner');
     banner.appendChild(el('span', null, '🔗 社媒转链：抖音 / 小红书链接粘贴即转 NFC 链接'));
     banner.onclick = function () { window.open('link.html', '_blank'); };
-    var bhint = el('div'); bhint.style.cssText = 'text-align:center;font-size:11px;color:#a08bb0;margin:4px 0 10px;';
-    bhint.textContent = '大客户专用 · 单独工具页，与下方卡片模板无关';
     p0.appendChild(banner);
-    p0.appendChild(bhint);
     var tg = el('div', 'tpl-grid');
     TPL_ORDER.forEach(function (k) {
       var t = TPL[k];
@@ -787,15 +806,27 @@
     p3.appendChild(agreeWrap);
     left.appendChild(p3);
 
-    /* ---- 4 写卡教程（内置引导 + 官方 APP 下载） ---- */
+    /* ---- 4 写卡教程（分框引导 + 官方 APP 下载 + 作者微信） ---- */
     var p6 = el('div', 'panel');
     var det = document.createElement('details');
+    det.className = 'tut';
     var sum = document.createElement('summary');
-    sum.textContent = '📱 没装 APP？三步把链接写进卡（点开教程）';
-    sum.style.cssText = 'cursor:pointer;font-size:14px;font-weight:600;color:#334;';
+    sum.className = 'sum-big';
+    sum.appendChild(el('span', 'ico', '📱'));
+    sum.appendChild(el('span', null, '没装 APP？三步把链接写进卡 —— 点开图文教程'));
     det.appendChild(sum);
-    var tbox = el('div'); tbox.style.cssText = 'margin-top:12px;font-size:13.5px;';
-    function tstep(no, title, body) {
+    var tbox = el('div'); tbox.style.cssText = 'margin-top:14px;';
+    function tframe(icon, title) {
+      var f = el('div', 'tframe');
+      var h = el('div', 'tf-head');
+      h.appendChild(el('span', 'tf-ico', icon));
+      h.appendChild(el('span', 'tf-title', title));
+      f.appendChild(h);
+      var b = el('div', 'tf-body');
+      f.appendChild(b);
+      return b;
+    }
+    function tstep(parent, no, title, body) {
       var s = el('div'); s.style.cssText = 'margin:12px 0;';
       var h = el('div');
       var n = el('b'); n.textContent = '第 ' + no + ' 步 · '; n.style.color = '#2563eb';
@@ -804,41 +835,53 @@
       s.appendChild(h);
       var p = el('div'); p.style.marginTop = '2px'; p.innerHTML = body;
       s.appendChild(p);
-      return s;
+      parent.appendChild(s);
     }
-    tbox.appendChild(tstep('0', '先确认手机有 NFC，并把它打开',
+    /* 框一：手机支持与自动打开 */
+    var bA = tframe('📱', '碰卡之前：确认手机支持 NFC');
+    tstep(bA, '0', '先确认手机有 NFC，并把它打开',
       '<b>NFC 是什么？</b>手机和卡片之间的"隔空快递"——贴近 2 厘米内，手机隔空给卡供电并交换数据（卡没电池，电全来自手机）。<br>' +
       '<b>安卓 3 秒自查</b>：下拉通知栏找「NFC」开关；找不到就进 设置→顶部搜索"NFC"。有 = 支持，打开即可。<br>' +
       '<b>iPhone</b>：7 代及之后全部支持，无需任何开关，写卡时解锁就行。<br>' +
-      '<b>手机真没有 NFC？</b>借同学的手机写一次就够——内容存在卡里，写完之后谁的手机都能碰开。<br>' +
-      '<div style="margin-top:10px;padding:10px 12px;background:#f0f6ff;border-radius:9px;font-size:12.5px;">' +
-      '<b>💡 碰卡会自动打开浏览器吗？</b><br>' +
+      '<b>手机真没有 NFC？</b>借同学的手机写一次就够——内容存在卡里，写完之后谁的手机都能碰开。');
+    var ao = el('div', 'tipbox');
+    ao.innerHTML = '<b>💡 碰卡会自动打开浏览器吗？</b><br>' +
       '会——<b>这不是卡上设置的，是手机系统的本能</b>：NFC 认出网址标签，就自动交给浏览器打开。大多数手机开完 NFC 碰卡直接弹网页。<br>' +
       '<b>如果你的手机不自动开，按这三种情况对号入座：</b><br>' +
       '① 碰卡弹"选择应用"或没反应 → <b>设置 → 应用 → 默认应用 → 浏览器</b>，指定一个浏览器（多数是没设默认浏览器）<br>' +
       '② 碰卡弹出的是钱包/交通卡界面 → 是自家钱包 App 抢先接管了，华为：钱包→我的→设置→关掉"双击电源唤起刷卡"；小米：设置→更多连接方式→NFC 里关掉卡片模拟相关项<br>' +
-      '③ iPhone：碰卡只会在屏幕顶部<b>弹一条通知</b>，<b>点一下通知</b>才打开——苹果对所有 NFC 卡都是这个规矩，不是卡的问题</div>'));
-    tbox.appendChild(tstep('1', '下载免费的 NFC Tools APP',
+      '③ iPhone：碰卡只会在屏幕顶部<b>弹一条通知</b>，<b>点一下通知</b>才打开——苹果对所有 NFC 卡都是这个规矩，不是卡的问题';
+    bA.appendChild(ao);
+    /* 框二：三步写卡 */
+    var bB = tframe('✍️', '三步把链接写进卡');
+    tstep(bB, '1', '下载免费的 NFC Tools APP',
       '安卓手机：<a href="https://apps.wakdev.com/nfctools/releases/nfctools_se-latest.apk" style="color:#2563eb;text-decoration:underline;"><b>点这里下载官方直装包</b></a>（wakdev 官网托管，无需应用商店，永远最新版，约 20MB）。' +
       'iPhone：去 <a href="https://apps.apple.com/cn/app/nfc-tools/id1252962749" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:underline;">App Store 搜 NFC Tools</a>。APP 版权归 wakdev 所有。<br>' +
-      '<span class="hint">免费版完全够用：读写网址 / 文本 / 联系人 / WiFi 全支持。Pro 版多的是批量写入、密码锁、任务自动化这类高级功能——本教程一步都用不到，不用花钱升级。</span>'));
-    tbox.appendChild(tstep('2', '添加「个性化 URL / URI」记录并粘贴链接',
+      '<span class="hint">免费版完全够用：读写网址 / 文本 / 联系人 / WiFi 全支持。Pro 版多的是批量写入、密码锁、任务自动化这类高级功能——本教程一步都用不到，不用花钱升级。</span>');
+    tstep(bB, '2', '添加「个性化 URL / URI」记录并粘贴链接',
       '打开 APP → 底部「写」→「添加记录」→ 在列表里选 <b>个性化 URL / URI</b>（下图行，链条是斜的）→ 把本页第 3 步复制的链接完整粘贴进去 → 确定。<br>' +
       '<span class="hint">为什么选"个性化"？——它可以手动控制链接前缀、完整写入长链接不截断，实测这条路径写卡最稳（两种都能写网址，照教程走不会错）。</span><br>' +
-      '<img src="guide-url.jpg" alt="个性化 URL / URI 记录位置" style="max-width:62%;border-radius:10px;border:1px solid #e3e8ef;margin-top:6px;display:block;">'));
-    tbox.appendChild(tstep('3', '写入卡片',
+      '<img src="guide-url.jpg" alt="个性化 URL / URI 记录位置" style="max-width:62%;border-radius:10px;border:1px solid #e3e8ef;margin-top:6px;display:block;">');
+    tstep(bB, '3', '写入卡片',
       '回到「写」页面 → 点「写入」→ 手机背面贴住卡片中间，慢慢小范围移动——<b>卡上的灯亮 = 正在写入</b>，出现成功提示就完成了。完成后碰一下卡验证。' +
       '<video src="write-demo.mp4" controls playsinline preload="metadata" poster="write-demo-poster.jpg" style="width:100%;max-width:430px;border-radius:10px;margin-top:8px;display:block;border:1px solid #e3e8ef;"></video>' +
-      '<span class="hint">↑ 真机实操演示视频（35 秒）</span>'));
+      '<span class="hint">↑ 真机实操演示视频（35 秒）</span>');
     var seeAll = el('div'); seeAll.style.marginTop = '10px';
     var sa = el('a', null, '📷 查看APP完整功能菜单长图');
     sa.href = 'guide-app-menu.jpg'; sa.target = '_blank'; sa.rel = 'noopener';
     sa.style.cssText = 'color:#2563eb;text-decoration:underline;font-size:12.5px;';
     seeAll.appendChild(sa);
-    tbox.appendChild(seeAll);
+    bB.appendChild(seeAll);
     var iph = el('p', 'hint', 'iPhone 提示：需解锁后碰卡，第一次从屏幕顶部通知点入；写入卡后想换内容，重新生成本页链接再写一遍即可。');
     iph.style.marginTop = '8px';
-    tbox.appendChild(iph);
+    bB.appendChild(iph);
+    /* 框三：转换稳定吗（顾客版承诺说明） */
+    var bC = tframe('🛡️', '每次都能转换成功吗？');
+    bC.innerHTML =
+      '<b>能，这一步是全自动的。</b>你在 App 里点「分享 → 复制」，把复制到的内容<b>整段粘贴</b>进来，系统就会自动提取链接，还会弹提示"已自动提取"告诉你成功了。<br>' +
+      '<b>万一某一条没提取出来呢？</b>页面会<b>红字明确提醒你</b>——绝不会塞给你一个坏链接还假装成功。照提示回 App 重新复制一次再试，或点右上角"加作者微信"就能解决。<br>' +
+      '<b>提取出的链接可靠吗？</b>那是抖音/小红书<b>官方的网页链接</b>，由平台生成、长期有效；碰卡打不开网页多半是手机设置问题，看上面第一个框就能解决。';
+    tbox.appendChild(bA); tbox.appendChild(bB); tbox.appendChild(bC);
     det.appendChild(tbox);
     p6.appendChild(det);
     left.appendChild(p6);
