@@ -368,18 +368,16 @@
   .vinyl-wrap.vsmall .vinyl-disc { box-shadow: 0 0 0 2px rgba(255,255,255,.85), 0 2px 8px rgba(0,0,0,.45); }
   .vinyl-wrap.vsmall.vinyl-paused .vinyl-cover::after { content: "▶"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 7px; color: #fff; }
   @keyframes fx-vinyl { to { transform: rotate(360deg); } }
-  /* 浮空手写引导气泡 + 弹簧箭头（v4.4） */
-  .vinyl-hint { position: absolute; left: 14px; bottom: 72px; width: max-content; max-width: 220px; text-align: center; pointer-events: none; z-index: 2; font-family: "Kaiti SC", KaiTi, STKaiti, "Yuanti SC", cursive; animation: vh-bob 2.6s ease-in-out infinite; }
-  .vh-bubble { display: inline-block; color: inherit; font-size: 11px; line-height: 1.5; text-align: left; text-shadow: 1px 1px 2px rgba(0,0,0,.3); }
-  .vh-bubble b { color: #e0407c; }
-  .vh-arrow { display: block; width: 30px; height: 26px; margin: -2px 0 0 26px; overflow: visible; }
+  @keyframes fx-vinyl { to { transform: rotate(360deg); } }
+  /* 浮空手写引导 + 弹簧箭头（最终版）：与迷你唱片并排，首次交互后整体消失 */
+  .vinyl-hint { position: absolute; left: 44px; bottom: 30px; display: flex; align-items: center; gap: 4px; width: max-content; pointer-events: none; z-index: 2; font-family: "Kaiti SC", KaiTi, STKaiti, "Yuanti SC", cursive; animation: vh-bob 2.6s ease-in-out infinite; }
+  .vh-arrow { display: block; width: 26px; height: 20px; flex: none; overflow: visible; }
   .vh-arrow path { stroke: currentColor; }
-  .vh-bubble b { color: #ffd166; }
-  .vh-arrow { display: block; width: 30px; height: 26px; margin: -2px 0 0 26px; overflow: visible; }
-  .vh-arrow path { stroke: #ffd166; }
-  .vh-line { stroke-dasharray: 60; stroke-dashoffset: 60; animation: vh-draw .7s ease-out forwards; }
-  .vh-head { opacity: 0; animation: vh-fadein .25s ease-out .6s forwards; }
-  .vinyl-wrap:not(.vsmall) .vinyl-hint { display: none; }
+  .vh-line { stroke-dasharray: 50; stroke-dashoffset: 50; animation: vh-draw .7s ease-out forwards; }
+  .vh-head { opacity: 0; animation: vh-fadein .25s ease-out .5s forwards; }
+  .vh-txt { font-size: 11px; line-height: 1.4; white-space: nowrap; text-shadow: 1px 1px 2px rgba(0,0,0,.25); }
+  .vh-txt b { color: #e0407c; }
+  .vinyl-wrap:not(.vsmall) .vinyl-hint, .vinyl-wrap.hint-done .vinyl-hint { display: none; }
   @keyframes vh-bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
   @keyframes vh-draw { to{stroke-dashoffset:0} }
   @keyframes vh-fadein { to{opacity:1} }
@@ -653,6 +651,14 @@
     var nm = el('div', 'vinyl-name', '♪ ' + (songName || '音乐'));
     unit.appendChild(disc); unit.appendChild(btn);
     wrap.appendChild(unit); wrap.appendChild(nm);
+    var hint = el('div', 'vinyl-hint');
+    var arw = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    arw.setAttribute('viewBox', '0 0 40 24');
+    arw.setAttribute('class', 'vh-arrow');
+    arw.innerHTML = '<path d="M38 12 C 26 4, 14 6, 6 11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 4 L4 12 L14 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+    hint.appendChild(arw);
+    var txt = el('span', 'vh-txt', '点击播放 TA 为你点播的歌曲');
+    hint.appendChild(txt);
     card.appendChild(wrap);
     /* 浮空手写引导气泡 + 弹簧箭头（指向迷你黑胶，引导首次点击） */
     var hint = el('div', 'vinyl-hint');
@@ -695,6 +701,7 @@
     }
     wrap.onclick = function () {
       clearTimeout(shrinkT);
+      wrap.classList.add('hint-done');   /* 首次点击后引导永久消失 */
       if (!expanded) {
         expanded = true;
         wrap.classList.remove('vsmall');
