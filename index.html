@@ -533,7 +533,7 @@
         { id: 'to', lb: '致（TA 的名字/昵称）', req: 1, max: 20, ph: '如：小雨', half: 1 },
         { id: 'fm', lb: '署名（留空=匿名）', max: 20, ph: '如：一个欣赏你的人', half: 1 },
         { id: 'msg', lb: '想说的话', type: 'area', req: 1, max: 260, ph: '碰卡的人都会看到这段话，写点真心话' },
-        { id: 'song', lb: '歌曲链接（网易云，选填）', max: 300, ph: 'App 分享复制整段粘进来也行', tip: '碰卡后左下角出现小唱片：点一下放大并播放，再点暂停；5 秒无操作自动缩回' },
+        { id: 'song', lb: '歌曲链接（网易云，选填）', max: 300, ph: '分享复制整段粘进来就行，自动识别', tip: '带 id 的链接（music.163.com/song?id=…）→ 卡内直接播放；163cn.tv 短链 → 点击跳转网易云播放' },
         { id: 'sn', lb: '歌名（选填）', max: 30, ph: '如：晴天 - 周杰伦', tip: '显示在小唱片旁边' }
       ]
     },
@@ -637,22 +637,24 @@
      音源 = 网易云官方外链播放器（隐藏 iframe auto=1），纯客户端零后端 */
   function addVinyl(card, songUrl, songName) {
     var idm = String(songUrl).match(/[?&]id=(\d+)/);
-    if (!idm) return;
-    var sid = idm[1];
+    var sid = idm ? idm[1] : null;   /* 无 id（如 163cn.tv 短链）→ 跳转模式；有 id → 卡内播放 */
     var wrap = el('div', 'vinyl-wrap vsmall');
     var unit = el('div', 'vinyl-unit');
     var disc = el('div', 'vinyl-disc');
     var cover = el('div', 'vinyl-cover');
     disc.appendChild(cover);
     var btn = el('button', 'vinyl-btn');
-    btn.type = 'button'; btn.setAttribute('aria-label', '播放 / 暂停');
-    btn.textContent = '▶';
+    btn.type = 'button';
+    btn.setAttribute('aria-label', sid ? '播放 / 暂停' : '打开歌曲');
+    btn.textContent = sid ? '▶' : '↗';
     var nm = el('div', 'vinyl-name', '♪ ' + (songName || '音乐'));
     unit.appendChild(disc); unit.appendChild(btn);
     wrap.appendChild(unit); wrap.appendChild(nm);
     var hint = el('div', 'vinyl-hint');
     var txt = el('div', 'vh-txt');
-    txt.innerHTML = '点击播放<br><b>TA 为你点播</b>的这首歌曲';
+    txt.innerHTML = sid
+      ? '点击播放<br><b>TA 为你点播</b>的这首歌曲'
+      : '点击打开<br><b>TA 为你点播</b>的这首歌曲';
     hint.appendChild(txt);
     var arw = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     arw.setAttribute('viewBox', '0 0 16 18');
@@ -662,6 +664,24 @@
     wrap.appendChild(hint);
     card.appendChild(wrap);
     var expanded = false, playing = false, shrinkT = null;
+    function shrink() {
+      clearTimeout(shrinkT);
+      shrinkT = setTimeout(function () {
+        expanded = false;
+        wrap.classList.add('vsmall');
+      }, 5000);
+    }
+    if (!sid) {
+      /* 短链跳转模式（163cn.tv 等）：第一次点放大，再点打开网易云播放页 */
+      wrap.onclick = function () {
+        clearTimeout(shrinkT);
+        wrap.classList.add('hint-done');
+        if (!expanded) { expanded = true; wrap.classList.remove('vsmall'); shrink(); return; }
+        window.open(songUrl, '_blank');
+        shrink();
+      };
+      return;
+    }
     function mount() {
       var old = card.querySelector('#ncm-audio'); if (old) old.remove();
       var f = document.createElement('iframe');
@@ -679,13 +699,6 @@
       btn.textContent = p ? '⏸' : '▶';
       wrap.classList.toggle('vinyl-paused', !p);
     }
-    function scheduleShrink() {
-      clearTimeout(shrinkT);
-      shrinkT = setTimeout(function () {
-        expanded = false;
-        wrap.classList.add('vsmall');
-      }, 5000);
-    }
     wrap.onclick = function () {
       clearTimeout(shrinkT);
       wrap.classList.add('hint-done');   /* 首次点击后引导永久消失 */
@@ -695,13 +708,13 @@
         playing = true;
         mount();
         setPlay(true);
-        scheduleShrink();
+        shrink();
         return;
       }
       playing = !playing;
       if (playing) mount(); else stop();
       setPlay(playing);
-      scheduleShrink();
+      shrink();
     };
   }
   function head(c, d, fallback, name, tag) {
@@ -1143,7 +1156,7 @@
     function collect() {
       var k = curTpl(), t = TPL[k];
       var d = { v: 2, k: k, sty: curStyle() };
-      var missing = null;
+      var missing = null, rawSong = '';
       t.fd.forEach(function (f) {
         if (f.type === 'rows') {
           var arr = [];
@@ -1158,6 +1171,7 @@
         } else {
           var inp = document.querySelector('[data-fid="' + f.id + '"]');
           var val = inp.value.trim();
+          if (f.id === 'song') rawSong = val;
           /* 链接类字段（song/u/xhs/dy/av）自动清洗：整段分享文本也能直接粘 */
           if (val && (f.url || f.id === 'xhs' || f.id === 'dy' || f.id === 'song' || f.id === 'u' || f.id === 'av')) {
             var clean = cleanUrl(val);
@@ -1168,6 +1182,15 @@
           if (f.req && !val && !missing) missing = f.lb;
         }
       });
+      /* 网易云分享文本自动解析歌名（未填歌名时）：如「分享Seredris的单曲《Daylight（日光）》」 */
+      if (k === 'love' && !d.sn && rawSong) {
+        var m1 = rawSong.match(/分享(.{1,30}?)的单曲《([^》]{1,40})》/);
+        if (m1) d.sn = m1[2] + ' - ' + m1[1];
+        else {
+          var m2 = rawSong.match(/《([^》]{1,40})》/);
+          if (m2) d.sn = m2[1];
+        }
+      }
       return { d: d, missing: missing };
     }
     function refreshPreview() {
