@@ -38,8 +38,8 @@
 <body>
 <div class="wrap">
   <h1>转接页 · 已生成的链接与二维码</h1>
-  <div class="sub">自动记录本机生成的最近 20 条链接 · 数据仅存在本机浏览器，不上传</div>
-  <div class="bar"><button id="clear">清空全部</button></div>
+  <div class="sub">自动记录本机生成的最近 200 条链接 · 数据仅存在本机浏览器，不上传<br>列表里的记录可以删，但<b>链接本身不会失效</b>——只要链接文本还在某处（聊天记录/照片/备份文件），打开就还是原来的内容</div>
+  <div class="bar"><button id="export">导出备份</button><button id="clear">清空全部</button></div>
   <div id="list"></div>
   <a class="back" href="index.html">← 返回制作页</a>
 </div>
@@ -115,6 +115,27 @@
       };
     });
   }
+  document.getElementById('export').onclick = function () {
+    var list = getList();
+    if (!list.length) { toast('没有可导出的记录'); return; }
+    var BR = String.fromCharCode(10);
+    var lines = [];
+    lines.push('# NFC 链接备份（导出于 ' + fmt(Date.now()) + '）');
+    lines.push('# 说明：这些链接永久有效；写进卡的链接即使被覆盖，只要这条文本还在，打开仍是原内容。');
+    lines.push('');
+    list.forEach(function (it) {
+      lines.push('【' + it.label + '】 ' + fmt(it.t));
+      lines.push(it.url);
+      lines.push('');
+    });
+    var blob = new Blob([lines.join(BR)], { type: 'text/plain;charset=utf-8' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'nfc-links-backup-' + new Date().toISOString().slice(0, 10) + '.txt';
+    document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+    toast('已导出 ' + list.length + ' 条');
+  };
   document.getElementById('clear').onclick = function () {
     if (!getList().length) { toast('没有可清空的记录'); return; }
     saveList([]); render(); toast('已清空');
