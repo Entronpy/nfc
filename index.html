@@ -370,17 +370,15 @@
   @keyframes fx-vinyl { to { transform: rotate(360deg); } }
   @keyframes fx-vinyl { to { transform: rotate(360deg); } }
   /* 浮空手写引导 + 弹簧箭头（最终版）：与迷你唱片并排，首次交互后整体消失 */
-  .vinyl-hint { position: absolute; left: 44px; bottom: 30px; display: flex; align-items: center; gap: 4px; width: max-content; pointer-events: none; z-index: 2; font-family: "Kaiti SC", KaiTi, STKaiti, "Yuanti SC", cursive; animation: vh-bob 2.6s ease-in-out infinite; }
-  .vh-arrow { display: block; width: 26px; height: 20px; flex: none; overflow: visible; }
-  .vh-arrow path { stroke: currentColor; }
-  .vh-line { stroke-dasharray: 50; stroke-dashoffset: 50; animation: vh-draw .7s ease-out forwards; }
-  .vh-head { opacity: 0; animation: vh-fadein .25s ease-out .5s forwards; }
-  .vh-txt { font-size: 11px; line-height: 1.4; white-space: nowrap; text-shadow: 1px 1px 2px rgba(0,0,0,.25); }
+  .vinyl-hint { position: absolute; left: 2px; bottom: 64px; width: 116px; text-align: center; pointer-events: none; z-index: 2; font-family: "Kaiti SC", KaiTi, STKaiti, "Yuanti SC", cursive; }
+  .vh-txt { font-size: 10.5px; line-height: 1.5; color: inherit; text-shadow: 1px 1px 2px rgba(0,0,0,.25); animation: vh-bob 2.6s ease-in-out infinite; }
   .vh-txt b { color: #e0407c; }
+  .vh-arrow { display: block; width: 18px; height: 16px; margin: 1px auto 0; overflow: visible; }
+  .vh-arrow path { stroke: currentColor; animation: vh-draw .8s ease-out forwards, vh-fadein .4s ease-out .4s both; }
   .vinyl-wrap:not(.vsmall) .vinyl-hint, .vinyl-wrap.hint-done .vinyl-hint { display: none; }
-  @keyframes vh-bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
-  @keyframes vh-draw { to{stroke-dashoffset:0} }
-  @keyframes vh-fadein { to{opacity:1} }
+  @keyframes vh-bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-3px)} }
+  @keyframes vh-draw { from{stroke-dashoffset:36} to{stroke-dashoffset:0} }
+  @keyframes vh-fadein { from{opacity:0} to{opacity:1} }
 
   .display-stage { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px 14px; }
   .display-card-wrap { width: 100%; max-width: 380px; border-radius: 22px; overflow: hidden; box-shadow: 0 12px 46px rgba(15,25,50,.22); }
@@ -653,13 +651,14 @@
     unit.appendChild(disc); unit.appendChild(btn);
     wrap.appendChild(unit); wrap.appendChild(nm);
     var hint = el('div', 'vinyl-hint');
-    var arw = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    arw.setAttribute('viewBox', '0 0 40 24');
-    arw.setAttribute('class', 'vh-arrow');
-    arw.innerHTML = '<path d="M38 12 C 26 4, 14 6, 6 11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 4 L4 12 L14 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
-    hint.appendChild(arw);
-    var txt = el('span', 'vh-txt', '点击播放 TA 为你点播的歌曲');
+    var txt = el('div', 'vh-txt');
+    txt.innerHTML = '点击播放<br><b>TA 为你点播</b>的这首歌曲';
     hint.appendChild(txt);
+    var arw = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    arw.setAttribute('viewBox', '0 0 22 20');
+    arw.setAttribute('class', 'vh-arrow');
+    arw.innerHTML = '<path d="M11 0 C 8 4, 6 7, 5 12" fill="none" stroke-width="2" stroke-linecap="round"/><path d="M1 10 L5 16 L10 11" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+    hint.appendChild(arw);
     card.appendChild(wrap);
     /* 浮空手写引导气泡 + 弹簧箭头（指向迷你黑胶，引导首次点击） */
     var hint = el('div', 'vinyl-hint');
