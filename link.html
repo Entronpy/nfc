@@ -169,6 +169,7 @@
     }
     var plat = detectPlatform(url);
     var len = url.length;
+    document.getElementById('urlbox').textContent = url;
     document.getElementById('meta').textContent =
       '识别平台：' + (plat || '通用网页链接（同样可以刷入）') +
       ' · 链接长度 ' + len + ' 字符 / NFC 容量 690 —— ' + (len <= 690 ? '✅ 可以直接刷入' : '❌ 超出容量，这条链接太长');
