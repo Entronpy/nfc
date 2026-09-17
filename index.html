@@ -352,21 +352,43 @@
   .fx-social-both .link-btn:nth-of-type(odd) { background:#ff2442; }
   .fx-social-both .link-btn:nth-of-type(even) { background:#161823; color:#00f2ea; }
 
-  /* 黑胶唱片播放器（love 表白卡）：唱片旋转，中央按钮保持静止 */
+  /* 黑胶唱片播放器（love 表白卡）：真实黑胶质感（细密纹路+红色中心标+固定高光+轴心） */
   .vinyl-wrap { position: absolute; left: 12px; bottom: 38px; display: flex; align-items: center; gap: 9px; z-index: 2; }
   .vinyl-unit { position: relative; width: 54px; height: 54px; flex: none; transition: width .25s ease, height .25s ease; }
-  .vinyl-disc { position: absolute; inset: 0; border-radius: 50%; background: repeating-radial-gradient(circle at 50% 50%, #0b0b0b 0 1.5px, #1b1b1b 1.5px 3.5px); box-shadow: 0 0 0 1px #000, 0 4px 10px rgba(0,0,0,.35); animation: fx-vinyl 3.6s linear infinite; }
-  .vinyl-cover { position: absolute; inset: 11px; border-radius: 50%; background: #333 center/cover no-repeat; }
-  .vinyl-btn { position: absolute; inset: 0; margin: auto; width: 20px; height: 20px; border-radius: 50%; border: none; background: rgba(0,0,0,.5); color: #fff; font-size: 9px; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0 0 0 1px; z-index: 2; }
-  .vinyl-btn:hover { background: rgba(0,0,0,.7); }
+  .vinyl-disc {
+    position: absolute; inset: 0; border-radius: 50%;
+    background:
+      repeating-radial-gradient(circle at 50% 50%, #0a0a0a 0 1px, #191919 1px 2px, #0d0d0d 2px 3px, #171717 3px 4px),
+      radial-gradient(circle at 50% 50%, #141414, #000 78%);
+    box-shadow: 0 0 0 1px #000, inset 0 0 0 2px rgba(255,255,255,.05), 0 4px 10px rgba(0,0,0,.35);
+    animation: fx-vinyl 3.6s linear infinite;
+  }
+  /* 唱片高光（模拟反光）——固定在唱片上方，不随盘旋转 */
+  .vinyl-unit::after {
+    content: ""; position: absolute; inset: 0; border-radius: 50%; pointer-events: none; z-index: 1;
+    background: linear-gradient(128deg, rgba(255,255,255,.20) 0%, rgba(255,255,255,.05) 20%, transparent 42%, transparent 100%);
+  }
+  /* 中心标（唱片贴纸）：随盘旋转 */
+  .vinyl-label {
+    position: absolute; inset: 30%; border-radius: 50%;
+    background: radial-gradient(circle at 50% 38%, #e0574b, #a32c22 72%);
+    box-shadow: inset 0 0 2px rgba(0,0,0,.55), 0 0 0 1px rgba(0,0,0,.4);
+  }
+  /* 轴心孔 + 播放/暂停（静止层） */
+  .vinyl-btn {
+    position: absolute; inset: 0; margin: auto; width: 16px; height: 16px; border-radius: 50%;
+    border: none; background: #101010; color: #fff; font-size: 8px; line-height: 1;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0 0 0 1px;
+    z-index: 3; box-shadow: inset 0 1px 1px rgba(255,255,255,.18), 0 0 0 1px rgba(255,255,255,.1);
+  }
+  .vinyl-btn:hover { background: #1c1c1c; }
   .vinyl-name { font-size: 11.5px; max-width: 150px; text-align: left; opacity: .92; line-height: 1.35; }
   .vinyl-wrap.vinyl-paused .vinyl-disc { animation-play-state: paused; }
   .vinyl-wrap.vsmall .vinyl-unit { width: 26px; height: 26px; }
-  .vinyl-wrap.vsmall .vinyl-cover { inset: 4px; }
-  .vinyl-wrap.vsmall .vinyl-btn { width: 13px; height: 13px; font-size: 7px; padding: 0; }
+  .vinyl-wrap.vsmall .vinyl-label { inset: 30%; }
+  .vinyl-wrap.vsmall .vinyl-btn { width: 10px; height: 10px; font-size: 5px; padding: 0; }
   .vinyl-wrap.vsmall .vinyl-name { font-size: 10px; max-width: 104px; }
   .vinyl-wrap.vsmall .vinyl-disc { box-shadow: 0 0 0 2px rgba(255,255,255,.85), 0 2px 8px rgba(0,0,0,.45); }
-  .vinyl-wrap.vsmall.vinyl-paused .vinyl-cover::after { content: "▶"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 7px; color: #fff; }
   @keyframes fx-vinyl { to { transform: rotate(360deg); } }
   /* 微信内播放受限提示（仅在微信 UA 且播放失败时出现） */
   .wx-tip { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); max-width: 92%; background: rgba(15,20,30,.86); color: #fff; font-size: 11px; line-height: 1.5; padding: 7px 12px; border-radius: 9px; text-align: center; z-index: 5; }
@@ -643,8 +665,8 @@
     var wrap = el('div', 'vinyl-wrap vsmall');
     var unit = el('div', 'vinyl-unit');
     var disc = el('div', 'vinyl-disc');
-    var cover = el('div', 'vinyl-cover');
-    disc.appendChild(cover);
+    var label = el('div', 'vinyl-label');   /* 中心标（真实黑胶贴纸位） */
+    disc.appendChild(label);
     var btn = el('button', 'vinyl-btn');
     btn.type = 'button';
     btn.setAttribute('aria-label', sid ? '播放 / 暂停' : '打开歌曲');
