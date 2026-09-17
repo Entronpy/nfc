@@ -66,13 +66,7 @@
   <h1>分享链接 → NFC 可刷链接</h1>
   <div class="sub">粘贴抖音 / 小红书的分享内容，一键提取可直接刷入卡片的链接</div>
 
-  <div class="lbl"><span class="step">1</span>这个链接来自哪个平台？</div>
-  <div class="plat">
-    <button type="button" data-p="douyin" class="on">🎵 抖音</button>
-    <button type="button" data-p="xhs">📕 小红书</button>
-  </div>
-
-  <div class="lbl"><span class="step">2</span>粘贴分享内容（整段粘进来就行，不用自己挑链接）</div>
+  <div class="lbl"><span class="step">1</span>粘贴分享内容（抖音 / 小红书都行，整段粘进来，不用自己挑链接）</div>
   <textarea id="raw" placeholder="例如：7.99 复制打开抖音，看看【某某的作品】… https://v.douyin.com/xxxx/ 01/14 &#10;或：05 某某发布了新笔记 https://xhslink.com/xxxx ，快来一起看看！"></textarea>
   <div class="warn" id="warn"></div>
 
@@ -104,7 +98,7 @@
 <script>
 (function () {
   'use strict';
-  var NFC_LIMIT = 690, platform = 'douyin';
+  var NFC_LIMIT = 690;
 
   function toast(msg) {
     var t = document.getElementById('toast');
@@ -125,18 +119,10 @@
     return '';
   }
   function detectPlatform(u) {
-    if (/xhslink\.com|xiaohongshu\.com/i.test(u)) return 'xhs';
-    if (/v\.douyin\.com|douyin\.com|iesdouyin\.com/i.test(u)) return 'douyin';
+    if (/xhslink\.com|xiaohongshu\.com/i.test(u)) return '📕 小红书';
+    if (/v\.douyin\.com|douyin\.com|iesdouyin\.com/i.test(u)) return '🎵 抖音';
     return '';
   }
-
-  document.querySelectorAll('.plat button').forEach(function (b) {
-    b.onclick = function () {
-      document.querySelectorAll('.plat button').forEach(function (x) { x.classList.remove('on'); });
-      b.classList.add('on');
-      platform = b.dataset.p;
-    };
-  });
 
   document.getElementById('go').onclick = function () {
     var warn = document.getElementById('warn');
@@ -148,14 +134,12 @@
       warn.style.display = 'block';
       return;
     }
-    var actual = detectPlatform(url);
-    if (actual && actual !== platform) {
-      warn.style.display = 'block';
-      warn.textContent = '⚠️ 注意：这条链接看起来是「' + (actual === 'xhs' ? '小红书' : '抖音') + '」的，和上面选的平台不一致——不影响生成，但请确认选对了平台。';
-    }
+    var plat = detectPlatform(url);
     var len = url.length;
     document.getElementById('urlbox').textContent = url;
-    document.getElementById('meta').textContent = '链接长度 ' + len + ' 字符 / NFC 容量 690 —— ' + (len <= 690 ? '✅ 可以直接刷入' : '❌ 超出容量，这条链接太长');
+    document.getElementById('meta').textContent =
+      '识别平台：' + (plat || '通用网页链接') +
+      ' · 链接长度 ' + len + ' 字符 / NFC 容量 690 —— ' + (len <= 690 ? '✅ 可以直接刷入' : '❌ 超出容量，这条链接太长');
     document.getElementById('result').style.display = 'block';
     var qb = document.getElementById('qrwrap');
     qb.style.display = 'none';
