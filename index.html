@@ -370,14 +370,14 @@
   @keyframes fx-vinyl { to { transform: rotate(360deg); } }
   @keyframes fx-vinyl { to { transform: rotate(360deg); } }
   /* 浮空手写引导 + 弹簧箭头（最终版）：与迷你唱片并排，首次交互后整体消失 */
-  .vinyl-hint { position: absolute; left: 2px; bottom: 64px; width: 116px; text-align: center; pointer-events: none; z-index: 2; font-family: "Kaiti SC", KaiTi, STKaiti, "Yuanti SC", cursive; }
-  .vh-txt { font-size: 10.5px; line-height: 1.5; color: inherit; text-shadow: 1px 1px 2px rgba(0,0,0,.25); animation: vh-bob 2.6s ease-in-out infinite; }
+  .vinyl-hint { position: absolute; left: 2px; bottom: 2px; width: 96px; text-align: center; pointer-events: none; z-index: 2; font-family: "Kaiti SC", KaiTi, STKaiti, "Yuanti SC", cursive; }
+  .vh-txt { font-size: 9.5px; line-height: 1.45; color: inherit; text-shadow: 1px 1px 2px rgba(0,0,0,.25); animation: vh-bob 2.6s ease-in-out infinite; }
   .vh-txt b { color: #e0407c; }
-  .vh-arrow { display: block; width: 18px; height: 16px; margin: 1px auto 0; overflow: visible; }
-  .vh-arrow path { stroke: currentColor; animation: vh-draw .8s ease-out forwards, vh-fadein .4s ease-out .4s both; }
+  .vh-arrow { position: absolute; top: -13px; left: 16px; width: 14px; height: 13px; overflow: visible; }
+  .vh-arrow path { stroke: currentColor; animation: vh-draw .7s ease-out forwards, vh-fadein .4s ease-out .4s both; }
   .vinyl-wrap:not(.vsmall) .vinyl-hint, .vinyl-wrap.hint-done .vinyl-hint { display: none; }
-  @keyframes vh-bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-3px)} }
-  @keyframes vh-draw { from{stroke-dashoffset:36} to{stroke-dashoffset:0} }
+  @keyframes vh-bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-2px)} }
+  @keyframes vh-draw { from{stroke-dashoffset:30} to{stroke-dashoffset:0} }
   @keyframes vh-fadein { from{opacity:0} to{opacity:1} }
 
   .display-stage { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px 14px; }
