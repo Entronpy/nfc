@@ -18,6 +18,15 @@
   }
   h1 { font-size: 21px; text-align: center; letter-spacing: 1px; }
   .sub { text-align: center; color: #67707c; font-size: 13px; margin: 6px 0 20px; }
+  .plats { background: linear-gradient(135deg, #f0f6ff, #eefaf3); border: 1px solid #c9dcf8; border-radius: 12px; padding: 12px 14px; margin-bottom: 16px; }
+  .plats b { font-size: 13.5px; color: #1d4ed8; }
+  .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 9px; }
+  .chip { background: #fff; border: 1px solid #d5e3f5; border-radius: 999px; padding: 3px 12px; font-size: 12.5px; color: #1d4ed8; font-weight: 600; }
+  .cta { margin-top: 10px; font-size: 12.5px; background: #fff7e8; border: 1px solid #f3ddb0; border-radius: 9px; padding: 7px 11px; color: #92400e; line-height: 1.7; }
+  .cta a { color: #b45309; font-weight: 700; }
+  .agree { display: flex; align-items: flex-start; gap: 7px; margin: 14px 0 2px; font-size: 12.5px; color: #556; cursor: pointer; }
+  .agree input { margin-top: 2px; }
+  .agree a { color: #2563eb; text-decoration: underline; }
   .lbl { font-size: 13px; color: #556; margin: 14px 0 6px; display: flex; align-items: center; gap: 6px; }
   .step { width: 20px; height: 20px; border-radius: 50%; background: #2563eb; color: #fff; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
   .plat { display: flex; gap: 10px; }
@@ -66,9 +75,22 @@
   <h1>分享链接 → NFC 可刷链接</h1>
   <div class="sub">粘贴抖音 / 小红书的分享内容，一键提取可直接刷入卡片的链接</div>
 
+  <div class="plats">
+    <b>🌐 已适配平台（持续扩展）</b>
+    <div class="chips">
+      <span class="chip">🎵 抖音</span><span class="chip">📕 小红书</span><span class="chip">📺 B站</span><span class="chip">🛒 淘宝</span><span class="chip">🛍️ 拼多多</span><span class="chip">📦 京东</span>
+    </div>
+    <div class="cta">💡 <b>不止这些！</b>互联网上的正规网页链接基本都能刷入。想要专属玩法、让作者为你单独适配？<a href="wx.html">加作者微信聊聊</a>，你的点子可能就是下一个功能。</div>
+  </div>
+
   <div class="lbl"><span class="step">1</span>粘贴分享内容（抖音 / 小红书都行，整段粘进来，不用自己挑链接）</div>
   <textarea id="raw" placeholder="例如：7.99 复制打开抖音，看看【某某的作品】… https://v.douyin.com/xxxx/ 01/14 &#10;或：05 某某发布了新笔记 https://xhslink.com/xxxx ，快来一起看看！"></textarea>
   <div class="warn" id="warn"></div>
+
+  <label class="agree">
+    <input type="checkbox" id="agree">
+    <span>我已阅读并同意 <a href="terms.html" target="_blank" rel="noopener">《免责声明与用户权益承诺书》</a>，并确认我的内容合法合规</span>
+  </label>
 
   <button class="go" id="go">一键生成可刷入的链接</button>
 
@@ -121,11 +143,22 @@
   function detectPlatform(u) {
     if (/xhslink\.com|xiaohongshu\.com/i.test(u)) return '📕 小红书';
     if (/v\.douyin\.com|douyin\.com|iesdouyin\.com/i.test(u)) return '🎵 抖音';
+    if (/b23\.tv|bilibili\.com/i.test(u)) return '📺 B站';
+    if (/taobao\.com|(^|\.)tb\.cn/i.test(u)) return '🛒 淘宝';
+    if (/yangkeduo\.com|pinduoduo\.com/i.test(u)) return '🛍️ 拼多多';
+    if (/(^|\.)jd\.com|3\.cn/i.test(u)) return '📦 京东';
     return '';
   }
 
   document.getElementById('go').onclick = function () {
     var warn = document.getElementById('warn');
+    var agree = document.getElementById('agree');
+    if (!agree.checked) {
+      warn.textContent = '请先勾选同意《免责声明与用户权益承诺书》';
+      warn.style.display = 'block';
+      return;
+    }
+    localStorage.setItem('nfc-link-tos', 'v1');
     var raw = document.getElementById('raw').value;
     var url = extractUrl(raw);
     warn.style.display = 'none';
@@ -136,9 +169,8 @@
     }
     var plat = detectPlatform(url);
     var len = url.length;
-    document.getElementById('urlbox').textContent = url;
     document.getElementById('meta').textContent =
-      '识别平台：' + (plat || '通用网页链接') +
+      '识别平台：' + (plat || '通用网页链接（同样可以刷入）') +
       ' · 链接长度 ' + len + ' 字符 / NFC 容量 690 —— ' + (len <= 690 ? '✅ 可以直接刷入' : '❌ 超出容量，这条链接太长');
     document.getElementById('result').style.display = 'block';
     var qb = document.getElementById('qrwrap');
