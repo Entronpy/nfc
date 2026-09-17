@@ -352,8 +352,13 @@
   .fx-social-both .link-btn:nth-of-type(odd) { background:#ff2442; }
   .fx-social-both .link-btn:nth-of-type(even) { background:#161823; color:#00f2ea; }
 
-  /* 黑胶唱片播放器（love 表白卡）：真实黑胶质感（细密纹路+红色中心标+固定高光+轴心） */
-  .vinyl-wrap { position: absolute; left: 12px; bottom: 38px; display: flex; align-items: center; gap: 9px; z-index: 2; }
+  /* 黑胶唱片播放器（love 表白卡）：真实黑胶质感（细密纹路+红色中心标+固定高光+轴心）
+     布局：流式排在分割线之后，上方留白隔开（不再绝对定位贴边） */
+  .vinyl-wrap { position: relative; align-self: flex-start; margin: 26px 0 12px 12px; display: flex; align-items: center; gap: 9px; z-index: 2; }
+  /* 有黑胶的卡：唱片沉到底部（贴着品牌行上方），上方由分割线留白隔开 */
+  .nfc-card.has-vinyl .vinyl-wrap { margin-top: auto; }
+  .nfc-card.has-vinyl .sep { margin-bottom: 26px; }
+  .nfc-card.has-vinyl .brand { margin-top: 0; }   /* 避免双 auto 平分空白 */
   .vinyl-unit { position: relative; width: 54px; height: 54px; flex: none; transition: width .25s ease, height .25s ease; }
   .vinyl-disc {
     position: absolute; inset: 0; border-radius: 50%;
@@ -662,6 +667,7 @@
   function addVinyl(card, songUrl, songName) {
     var idm = String(songUrl).match(/[?&]id=(\d+)/);
     var sid = idm ? idm[1] : null;   /* 无 id（如 163cn.tv 短链）→ 跳转模式；有 id → 卡内播放 */
+    card.classList.add('has-vinyl');   /* 卡片级标记：唱片沉底 + 分割线留白 */
     var wrap = el('div', 'vinyl-wrap vsmall');
     var unit = el('div', 'vinyl-unit');
     var disc = el('div', 'vinyl-disc');
