@@ -412,6 +412,15 @@
   .vinyl-wrap.vsmall .vinyl-name { font-size: 10px; max-width: 104px; }
   .vinyl-wrap.vsmall .vinyl-disc { box-shadow: 0 0 0 2px rgba(255,255,255,.85), 0 2px 8px rgba(0,0,0,.45); }
   @keyframes fx-vinyl { to { transform: rotate(360deg); } }
+  /* 视频卡：播放器与上传按钮 */
+  .card-video { width: 100%; max-width: 300px; border-radius: 12px; margin-top: 12px; background: #000; display: block; box-shadow: 0 4px 18px rgba(0,0,0,.28); }
+  .upload-btn { margin-top: 8px; width: 100%; border: 1.5px dashed #b9cff7; background: #f4f8ff; color: #1d4ed8; border-radius: 10px; padding: 10px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s; }
+  .upload-btn:hover { background: #e8f1ff; border-color: #7fa8ee; }
+  .upload-btn:disabled { opacity: .6; cursor: wait; }
+  .fx-video-cinema { --bg: radial-gradient(ellipse at 50% 0%, #2a3346, #111318 62%); }
+  .fx-video-cinema .name { letter-spacing: 2px; }
+  .fx-video-neon::before { content: ""; position: absolute; z-index: -1; inset: 0; background: linear-gradient(0deg, rgba(0,240,255,.14), transparent 46%), linear-gradient(180deg, rgba(255,61,220,.12), transparent 40%); }
+  .fx-video-clean .card-video { box-shadow: 0 3px 14px rgba(20,30,50,.18); }
   /* 微信内播放受限提示（仅在微信 UA 且播放失败时出现） */
   .wx-tip { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); max-width: 92%; background: rgba(15,20,30,.86); color: #fff; font-size: 11px; line-height: 1.5; padding: 7px 12px; border-radius: 9px; text-align: center; z-index: 5; }
   .wx-tip b { color: #ffd166; }
@@ -527,7 +536,8 @@
     'club-neon': 'y2k', 'club-pop': 'pop', 'club-minimal': 'flat',
     'flea-market': 'doodle', 'flea-poster': 'pop', 'flea-clean': 'flat',
     'game-retro': 'pixel', 'game-esports': 'y2k', 'game-starfield': 'glass',
-    'social-xhs': 'pop', 'social-dy': 'y2k', 'social-both': 'ink'
+    'social-xhs': 'pop', 'social-dy': 'y2k', 'social-both': 'ink',
+    'video-cinema': 'glass', 'video-clean': 'flat', 'video-neon': 'y2k'
   };
   function cardCls(d) {
     if (d.sty && STYLE_FLAIR[d.sty]) return 's-' + STYLE_FLAIR[d.sty] + ' fx-' + d.sty;
@@ -636,9 +646,21 @@
         { type: 'rows', id: 'G', lb: '游戏和 ID（最多 3 个）', nph: '游戏，如 原神', vph: '游戏 UID', url: 0, max: 3, req: 1 },
         { id: 'av', lb: '头像图片链接（选填）', max: 200, ph: '粘贴一张图片的网址' }
       ]
+    },
+    video: {
+      nm: '视频卡', ic: '🎬', de: '视频碰卡即看',
+      st: [ST('video-cinema', '影院暗场', '深色影厅 · 沉浸', 'linear-gradient(135deg,#111318,#232a3a)'),
+           ST('video-clean', '清爽白', '白底干净 · 视频优先', 'linear-gradient(135deg,#f7f8fa,#e6ecf5)'),
+           ST('video-neon', '霓虹播放', '赛博风 · 动感', 'linear-gradient(135deg,#1a1440,#00f0ff)')],
+      fd: [
+        { id: 'n', lb: '视频标题（必填）', req: 1, max: 24, ph: '如：海大宣传片' },
+        { id: 's', lb: '一句话介绍（选填）', type: 'area', max: 70, ph: '碰卡的人第一眼看到的一句话' },
+        { id: 'vurl', lb: '视频链接（必填）', req: 1, max: 300, ph: '点下方"上传视频"自动填入，或粘贴 mp4 链接', upload: 1 },
+        { id: 'fm', lb: '署名（选填）', max: 20, half: 1 }
+      ]
     }
   };
-  var TPL_ORDER = ['card', 'love', 'grad', 'club', 'flea', 'game'];
+  var TPL_ORDER = ['card', 'love', 'grad', 'club', 'flea', 'game', 'video'];
   /* 社媒主页模板已从可选网格移除（2026-09-16 用户指令：转链工具覆盖该入口）；
      渲染器保留——旧链接仍可正常显示 */
 
@@ -893,6 +915,22 @@
       });
       return finish(c);
     },
+    video: function (d) {
+      var c = cardShell(cardCls(d));
+      c.appendChild(el('div', 'name', d.n || '视频'));
+      if (d.s) c.appendChild(el('div', 'bio', d.s));
+      if (d.vurl) {
+        var v = document.createElement('video');
+        v.src = cleanUrl(d.vurl);
+        v.controls = true;
+        v.setAttribute('playsinline', '');
+        v.preload = 'metadata';
+        v.className = 'card-video';
+        c.appendChild(v);
+      }
+      if (d.fm) c.appendChild(el('div', 'sig', '—— ' + d.fm));
+      return finish(c);
+    },
     social: function (d) {
       var c = cardShell(cardCls(d));
       head(c, d, (d.n || '?').trim().charAt(0).toUpperCase(), d.n || '账号', null);
@@ -911,7 +949,7 @@
   }
   function displayTitle(d) {
     var k = RENDER[d.k] ? d.k : 'card';
-    var n = { card: d.n, social: d.n, love: '给' + d.to + '的心意', grad: d.sc + ' · 毕业纪念', club: d.n, flea: d.it, game: d.nk }[k];
+    var n = { card: d.n, social: d.n, love: '给' + d.to + '的心意', grad: d.sc + ' · 毕业纪念', club: d.n, flea: d.it, game: d.nk, video: d.n }[k];
     return (n || '碰一碰卡片') + ' · NFC';
   }
 
@@ -1225,6 +1263,35 @@
       }
       if (f.ph) inp.placeholder = f.ph;
       w.appendChild(inp);
+      /* 视频上传按钮（仅在本地管理页可用：同源 /api/video-upload） */
+      if (f.upload) {
+        var ub = el('button', 'upload-btn', '📤 上传视频（自动压缩＋托管，仅管理页可用）');
+        ub.type = 'button';
+        ub.onclick = function () {
+          var picker = document.createElement('input');
+          picker.type = 'file'; picker.accept = 'video/*';
+          picker.onchange = function () {
+            var file = picker.files && picker.files[0];
+            if (!file) return;
+            if (file.size > 80 * 1024 * 1024) { toast('视频超过 80MB，请先压缩再传'); return; }
+            ub.disabled = true; ub.textContent = '⏳ 上传中…（压缩＋托管约需半分钟）';
+            var fd = new FormData(); fd.append('file', file);
+            fetch('/api/video-upload', { method: 'POST', body: fd })
+              .then(function (r) { return r.json(); })
+              .then(function (j) {
+                if (j && j.ok && j.url) {
+                  inp.value = j.url;
+                  inp.dispatchEvent(new Event('input', { bubbles: true }));
+                  toast('上传成功（' + j.size_mb + 'MB），已填入链接');
+                } else toast('上传失败：' + ((j && j.err) || '未知错误'));
+              })
+              .catch(function () { toast('本页无上传服务——请把视频发给作者代为上传'); })
+              .then(function () { ub.disabled = false; ub.textContent = '📤 上传视频（自动压缩＋托管，仅管理页可用）'; });
+          };
+          picker.click();
+        };
+        w.appendChild(ub);
+      }
       if (f.tip) w.appendChild(el('p', 'hint', f.tip));
       return w;
     }
