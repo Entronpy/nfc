@@ -666,6 +666,7 @@
         { id: 'n', lb: '视频标题（必填）', req: 1, max: 24, ph: '如：海大宣传片' },
         { id: 's', lb: '一句话介绍（选填）', type: 'area', max: 70, ph: '碰卡的人第一眼看到的一句话' },
         { id: 'vurl', lb: '视频链接（必填）', req: 1, max: 300, ph: '点下方"上传视频"自动填入，或粘贴 mp4 链接', upload: 1 },
+        { id: 'poster', lb: '封面图链接（选填）', max: 300, ph: '粘贴图片网址，播放前显示的封面' },
         { id: 'fm', lb: '署名（选填）', max: 20, half: 1 }
       ]
     }
@@ -939,6 +940,7 @@
       if (d.vurl) {
         var v = document.createElement('video');
         v.src = cleanUrl(d.vurl);
+        if (d.poster) v.poster = cleanUrl(d.poster);   /* 封面图 */
         v.controls = true;
         v.setAttribute('playsinline', '');
         v.preload = 'metadata';
@@ -1347,7 +1349,7 @@
           var val = inp.value.trim();
           if (f.id === 'song') rawSong = val;
           /* 链接类字段（song/u/xhs/dy/av）自动清洗：整段分享文本也能直接粘 */
-          if (val && (f.url || f.id === 'xhs' || f.id === 'dy' || f.id === 'song' || f.id === 'u' || f.id === 'av')) {
+          if (val && (f.url || f.id === 'xhs' || f.id === 'dy' || f.id === 'song' || f.id === 'u' || f.id === 'av' || f.id === 'poster')) {
             var clean = cleanUrl(val);
             if (clean !== val && !collect._toastShown) { collect._toastShown = true; toast('已自动从分享文本提取链接'); setTimeout(function(){ collect._toastShown = false; }, 3000); }
             val = clean;
