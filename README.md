@@ -19,10 +19,10 @@
 
 ## 与个人名片仓库的区别
 
-本仓库用于制作和定制 NFC 卡片内容；`card` 仓库用于展示 ColdFish 的个人名片。
+本仓库用于制作和定制 NFC 卡片内容；[card](https://github.com/Entronpy/card) 仓库用于展示 ColdFish 的个人名片。
 
 ## 当前访问地址
 
 https://entronpy.github.io/nfc/
 
-现有页面引用了该路径。仓库重命名时需同步处理网站发布路径与已有 NFC 标签的访问兼容。
+按用户选择保留仓库名 `nfc` 和上述访问路径，维持已有 NFC 标签链接。
